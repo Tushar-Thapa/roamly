@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Roamly — Weekend escapes, sorted</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1612; --paper: #faf8f5; --white: #ffffff;
+    --orange: #e05c2a; --green: #2d4a35; --sand: #e8dcc8;
+    --muted: #8a7f72; --line: #e2dbd0; --r: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--paper); color: var(--ink); font-family: 'DM Sans', -apple-system, sans-serif; }
+
+  /* HEADER */
+  .site-header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(250,248,245,0.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+  .header-inner {
+    max-width: 1100px; margin: 0 auto; padding: 0 32px;
+    height: 64px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .logo-mark {
+    width: 32px; height: 32px; background: var(--orange); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif; font-size: 18px; color: white;
+    font-weight: 900; transform: rotate(-3deg);
+  }
+  .logo-text { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+  .header-tag { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* HERO */
+  .hero { max-width: 1100px; margin: 0 auto; padding: 72px 32px 48px; }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 600; color: var(--orange);
+    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 20px;
+  }
+  .hero-eyebrow::before { content: ''; width: 24px; height: 2px; background: var(--orange); }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(40px, 6vw, 72px); font-weight: 900;
+    line-height: 1.0; letter-spacing: -0.03em; margin-bottom: 20px;
+  }
+  .hero h1 em { font-style: italic; color: var(--orange); }
+  .hero-sub { font-size: 17px; color: var(--muted); max-width: 480px; line-height: 1.65; }
+
+  /* FORM */
+  .form-wrap { max-width: 1100px; margin: 0 auto 64px; padding: 0 32px; }
+  .form-card {
+    background: var(--white); border: 1px solid var(--line);
+    border-radius: 20px; padding: 28px 32px 32px;
+    box-shadow: 0 4px 24px rgba(26,22,18,0.08);
+  }
+  .form-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    border: 1.5px solid var(--line); border-radius: 14px; overflow: hidden; margin-bottom: 20px;
+  }
+  .form-section { padding: 16px 20px; border-right: 1.5px solid var(--line); }
+  .form-section:last-child { border-right: none; }
+  .form-section-label { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; display: block; }
+  .city-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .city-btn {
+    padding: 7px 16px; border: 1.5px solid var(--line); border-radius: 999px;
+    background: var(--paper); font-size: 13px; font-weight: 600;
+    cursor: pointer; color: var(--ink); font-family: inherit; transition: all 0.15s;
+  }
+  .city-btn.active { background: var(--ink); border-color: var(--ink); color: white; }
+  .budget-input {
+    width: 100%; border: none; outline: none; font-size: 22px;
+    font-weight: 600; font-family: inherit; color: var(--ink); background: transparent;
+  }
+  .budget-hint { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .dur-row { display: flex; gap: 6px; }
+  .dur-btn {
+    flex: 1; padding: 8px 4px; border: 1.5px solid var(--line); border-radius: 8px;
+    background: var(--paper); font-size: 12px; font-weight: 600;
+    cursor: pointer; color: var(--ink); text-align: center; font-family: inherit; transition: all 0.15s;
+  }
+  .dur-btn.active { background: var(--green); border-color: var(--green); color: white; }
+  .form-label-row { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .interests-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 20px; }
+  .int-btn {
+    padding: 7px 14px; border: 1.5px solid var(--line); border-radius: 999px;
+    background: var(--paper); font-size: 13px; font-weight: 500;
+    cursor: pointer; color: var(--ink); font-family: inherit; transition: all 0.15s;
+  }
+  .int-btn.active { background: var(--orange); border-color: var(--orange); color: white; font-weight: 600; }
+  .search-btn {
+    width: 100%; padding: 16px; background: var(--ink); color: white;
+    border: none; border-radius: 12px; font-family: 'Playfair Display', serif;
+    font-size: 17px; font-weight: 700; cursor: pointer; transition: all 0.15s;
+  }
+  .search-btn:hover { background: #2d2824; transform: translateY(-1px); }
+
+  @media (max-width: 700px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .form-section { border-right: none; border-bottom: 1.5px solid var(--line); }
+    .form-section:last-child { border-bottom: none; }
+    .hero, .form-wrap { padding-left: 20px; padding-right: 20px; }
+  }
+
+  /* RESULTS */
+  .results-wrap { max-width: 1100px; margin: 0 auto 80px; padding: 0 32px; }
+  .results-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 28px; padding-bottom: 16px; border-bottom: 1px solid var(--line);
+  }
+  .results-title { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+  .results-count { font-size: 13px; font-weight: 600; color: var(--muted); background: var(--sand); padding: 5px 12px; border-radius: 999px; }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+
+  /* CARD */
+  .dest-card {
+    border-radius: var(--r); overflow: hidden; cursor: pointer;
+    background: var(--white); border: 1px solid var(--line);
+    box-shadow: 0 2px 12px rgba(26,22,18,0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex; flex-direction: column;
+  }
+  .dest-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(26,22,18,0.14); }
+  /* SLIDESHOW */
+  .card-photo { position: relative; height: 210px; overflow: hidden; background: var(--sand); }
+  .slide-track { display: flex; height: 100%; transition: transform 0.45s cubic-bezier(0.4,0,0.2,1); }
+  .slide-img { min-width: 100%; height: 100%; object-fit: cover; display: block; flex-shrink: 0; }
+  .card-photo-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(26,22,18,0.75) 0%, transparent 55%); pointer-events: none; }
+  .slide-arrow {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,0.88); backdrop-filter: blur(6px);
+    border: none; border-radius: 50%; width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 12px; color: var(--ink);
+    opacity: 0; transition: opacity 0.2s ease;
+    z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .card-photo:hover .slide-arrow { opacity: 1; }
+  .slide-arrow-left { left: 8px; }
+  .slide-arrow-right { right: 8px; }
+  .slide-dots {
+    position: absolute; bottom: 44px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 5px; z-index: 10;
+  }
+  .slide-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(255,255,255,0.5); border: none; padding: 0; cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .slide-dot.active { background: white; width: 18px; border-radius: 3px; }
+  .slide-count {
+    position: absolute; top: 12px; left: 12px;
+    background: rgba(0,0,0,0.45); backdrop-filter: blur(6px);
+    border-radius: 999px; padding: 3px 9px;
+    font-size: 11px; font-weight: 700; color: white; z-index: 10;
+  }
+  .photo-skeleton {
+    background: linear-gradient(90deg, #e8dcc8 0%, #f0e8d8 50%, #e8dcc8 100%);
+    background-size: 200%; animation: shimmer 1.5s infinite;
+  }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  .card-dist-pill {
+    position: absolute; top: 12px; left: 12px;
+    background: rgba(255,255,255,0.92); backdrop-filter: blur(8px);
+    border-radius: 999px; padding: 5px 12px;
+    font-size: 12px; font-weight: 700; color: var(--ink);
+  }
+  .card-region-pill {
+    position: absolute; top: 12px; right: 12px;
+    background: var(--green); border-radius: 999px;
+    padding: 5px 12px; font-size: 11px; font-weight: 600; color: white;
+  }
+  .card-name-overlay {
+    position: absolute; bottom: 12px; left: 14px; right: 14px;
+    font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700;
+    color: white; line-height: 1.15; text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  .card-body { padding: 16px 18px 18px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+  .card-highlights { list-style: none; padding: 0; flex: 1; }
+  .card-highlights li { font-size: 13px; color: #5a5349; line-height: 1.4; padding-left: 14px; position: relative; margin-bottom: 5px; }
+  .card-highlights li::before { content: '·'; position: absolute; left: 0; color: var(--orange); font-size: 18px; line-height: 1; }
+  .card-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+  .card-tag { font-size: 11px; font-weight: 600; color: var(--green); background: rgba(45,74,53,0.08); border-radius: 4px; padding: 3px 8px; text-transform: uppercase; }
+
+  /* Budget breakdown strip on card */
+  .card-budget-strip {
+    background: var(--paper); border-radius: 8px; padding: 10px 12px;
+    display: flex; gap: 0; border: 1px solid var(--line);
+  }
+  .budget-item { flex: 1; text-align: center; }
+  .budget-item + .budget-item { border-left: 1px solid var(--line); }
+  .budget-item-label { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 2px; }
+  .budget-item-val { font-size: 13px; font-weight: 700; color: var(--ink); }
+
+  /* Transport strip */
+  .card-transport { display: flex; gap: 6px; flex-wrap: wrap; }
+  .transport-pill {
+    font-size: 11px; font-weight: 600; padding: 4px 10px;
+    border-radius: 999px; border: 1.5px solid var(--line);
+    color: var(--ink); background: var(--paper); white-space: nowrap;
+  }
+
+  .card-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 10px; border-top: 1px solid var(--line);
+  }
+  .card-total { font-size: 13px; font-weight: 600; color: var(--muted); }
+  .card-total strong { color: var(--ink); font-size: 15px; }
+  .card-view-btn {
+    font-size: 12px; font-weight: 700; color: var(--orange);
+    background: none; border: none; cursor: pointer; font-family: inherit;
+    display: flex; align-items: center; gap: 4px; transition: gap 0.15s;
+  }
+  .card-view-btn:hover { gap: 8px; }
+
+  /* EMPTY */
+  .empty { text-align: center; padding: 80px 20px; color: var(--muted); }
+  .empty-icon { font-size: 52px; display: block; margin-bottom: 16px; }
+  .empty h3 { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--ink); margin-bottom: 8px; }
+
+  /* DETAIL */
+  .detail-wrap { max-width: 820px; margin: 0 auto 80px; padding: 0 24px; }
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 8px; margin: 28px 0 24px;
+    background: none; border: 1.5px solid var(--line); border-radius: 8px;
+    padding: 9px 18px; font-size: 13px; font-weight: 600; color: var(--muted);
+    cursor: pointer; font-family: inherit; transition: all 0.15s;
+  }
+  .back-btn:hover { border-color: var(--ink); color: var(--ink); }
+  .detail-photo {
+    width: 100%; height: 360px; border-radius: 20px; overflow: hidden;
+    position: relative; margin-bottom: 28px;
+    box-shadow: 0 8px 32px rgba(26,22,18,0.16);
+  }
+  .detail-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .detail-photo-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(26,22,18,0.72) 0%, transparent 50%); }
+  .detail-photo-text { position: absolute; bottom: 24px; left: 28px; right: 28px; }
+  .detail-photo-text h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 4vw, 42px); font-weight: 900;
+    color: white; line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 6px;
+  }
+  .detail-region { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* Info chips row */
+  .detail-chips { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 28px; }
+  @media (max-width: 600px) { .detail-chips { grid-template-columns: 1fr 1fr; } }
+  .chip { background: var(--white); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  .chip-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .chip-value { font-size: 18px; font-weight: 700; color: var(--ink); }
+  .chip-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .detail-section { margin-bottom: 28px; }
+  .section-label {
+    font-size: 11px; font-weight: 700; color: var(--orange);
+    text-transform: uppercase; letter-spacing: 0.12em;
+    margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+  .highlight-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .highlight-list li {
+    background: var(--white); border: 1px solid var(--line); border-radius: 10px;
+    padding: 13px 16px 13px 40px; font-size: 14px; line-height: 1.5; color: #4a4540; position: relative;
+  }
+  .highlight-list li::before { content: '✦'; position: absolute; left: 14px; top: 13px; color: var(--orange); font-size: 12px; }
+
+  /* Budget breakdown detail */
+  .budget-breakdown {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+  }
+  .bb-card {
+    background: var(--white); border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px; text-align: center;
+  }
+  .bb-icon { font-size: 22px; display: block; margin-bottom: 6px; }
+  .bb-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .bb-amount { font-size: 20px; font-weight: 700; color: var(--ink); }
+  .bb-note { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .bb-total {
+    margin-top: 10px; background: var(--ink); color: white;
+    border-radius: 10px; padding: 14px 20px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .bb-total-label { font-size: 13px; font-weight: 600; opacity: 0.7; }
+  .bb-total-amount { font-size: 20px; font-weight: 700; }
+
+  /* Transport detail */
+  .transport-grid { display: flex; flex-direction: column; gap: 8px; }
+  .transport-row {
+    background: var(--white); border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; display: flex; align-items: center; gap: 14px;
+  }
+  .transport-icon { font-size: 22px; flex-shrink: 0; }
+  .transport-info { flex: 1; }
+  .transport-mode { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+  .transport-detail { font-size: 13px; color: var(--muted); }
+  .transport-cost { font-size: 14px; font-weight: 700; color: var(--green); white-space: nowrap; }
+
+  .itinerary { display: flex; flex-direction: column; gap: 8px; }
+  .itin-item { background: var(--white); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; display: flex; gap: 14px; }
+  .itin-badge { background: var(--orange); color: white; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; padding: 4px 10px; border-radius: 6px; white-space: nowrap; align-self: flex-start; margin-top: 1px; }
+  .itin-text { font-size: 14px; line-height: 1.6; color: #4a4540; }
+
+  .best-time-box { background: var(--white); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; font-size: 14px; line-height: 1.6; color: #4a4540; }
+  .pack-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pack-chip { background: var(--sand); border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 500; }
+  .detail-tag-row { display: flex; flex-wrap: wrap; gap: 7px; }
+  .detail-tag { background: rgba(45,74,53,0.09); color: var(--green); border-radius: 6px; padding: 6px 14px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+  .maps-link {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--ink); color: white; border-radius: 12px; padding: 14px 24px;
+    font-size: 14px; font-weight: 700; text-decoration: none; font-family: inherit; transition: background 0.15s;
+  }
+  .maps-link:hover { background: #2d2824; }
+
+  /* AUTH NAV BUTTONS */
+  .auth-nav-btn {
+    padding: 8px 18px; border-radius: 8px; border: 1.5px solid var(--line);
+    background: transparent; font-family: inherit; font-size: 13px; font-weight: 600;
+    color: var(--ink); cursor: pointer; transition: all 0.15s;
+  }
+  .auth-nav-btn:hover { border-color: var(--ink); }
+  .auth-nav-btn.primary { background: var(--ink); border-color: var(--ink); color: white; }
+  .auth-nav-btn.primary:hover { background: #2d2824; }
+  .user-chip {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; font-weight: 600; color: var(--ink);
+  }
+  .user-chip button {
+    background: none; border: none; color: var(--muted);
+    font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit;
+    text-decoration: underline;
+  }
+  .user-chip button:hover { color: var(--orange); }
+  .wishlist-nav-btn {
+    background: none; border: 1.5px solid var(--line); border-radius: 8px;
+    padding: 8px 14px; font-size: 13px; font-weight: 600; color: var(--ink);
+    cursor: pointer; font-family: inherit; transition: all 0.15s;
+  }
+  .wishlist-nav-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+  /* WISHLIST HEART ON CARD */
+  .card-heart {
+    position: absolute; top: 12px; right: 12px;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: rgba(255,255,255,0.92); backdrop-filter: blur(6px);
+    border: none; cursor: pointer; font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink); z-index: 10; transition: all 0.15s;
+  }
+  .card-heart:hover { transform: scale(1.1); }
+  .card-heart.saved { color: var(--orange); }
+
+  /* AUTH MODAL */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(26,22,18,0.55);
+    backdrop-filter: blur(4px); z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal-card {
+    background: var(--white); border-radius: 20px; padding: 36px 32px;
+    max-width: 400px; width: 100%; position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .modal-close {
+    position: absolute; top: 18px; right: 18px;
+    background: none; border: none; font-size: 16px; color: var(--muted);
+    cursor: pointer; width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal-close:hover { background: var(--paper); color: var(--ink); }
+  .modal-title {
+    font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700;
+    margin-bottom: 6px; letter-spacing: -0.02em;
+  }
+  .modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
+  .modal-form { display: flex; flex-direction: column; gap: 14px; }
+  .modal-field label {
+    display: block; font-size: 11px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;
+  }
+  .modal-field input {
+    width: 100%; padding: 11px 14px; border: 1.5px solid var(--line);
+    border-radius: 10px; font-size: 14px; font-family: inherit;
+    background: var(--paper); color: var(--ink); outline: none;
+  }
+  .modal-field input:focus { border-color: var(--orange); }
+  .modal-error {
+    background: #fdecea; color: #b3261e; font-size: 13px;
+    padding: 10px 14px; border-radius: 8px; font-weight: 500;
+  }
+  .modal-submit {
+    margin-top: 6px; padding: 14px; background: var(--ink); color: white;
+    border: none; border-radius: 10px; font-family: 'Playfair Display', serif;
+    font-size: 15px; font-weight: 700; cursor: pointer; transition: background 0.15s;
+  }
+  .modal-submit:hover { background: #2d2824; }
+  .modal-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+  .modal-switch {
+    margin-top: 20px; text-align: center; font-size: 13px; color: var(--muted);
+  }
+  .modal-switch button {
+    background: none; border: none; color: var(--orange); font-weight: 700;
+    cursor: pointer; font-family: inherit; font-size: 13px; text-decoration: underline;
+  }
+
+  .modal-tiny-link {
+    background: none; border: none; color: var(--muted); font-size: 12px;
+    text-decoration: underline; cursor: pointer; font-family: inherit;
+    text-align: left; padding: 0; width: fit-content;
+  }
+  .modal-tiny-link:hover { color: var(--orange); }
+
+  /* ADMIN TAB + PANEL */
+  .admin-nav-btn {
+    background: var(--green); border: none; border-radius: 8px;
+    padding: 8px 14px; font-size: 13px; font-weight: 700; color: white;
+    cursor: pointer; font-family: inherit; transition: opacity 0.15s;
+  }
+  .admin-nav-btn:hover { opacity: 0.85; }
+
+  .admin-wrap { max-width: 980px; margin: 0 auto 80px; padding: 0 32px; }
+  .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 28px 0 20px; }
+  .admin-title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; }
+  .admin-add-btn {
+    background: var(--orange); color: white; border: none; border-radius: 10px;
+    padding: 11px 20px; font-size: 14px; font-weight: 700; cursor: pointer;
+    font-family: inherit; transition: opacity 0.15s;
+  }
+  .admin-add-btn:hover { opacity: 0.9; }
+
+  .admin-table { display: flex; flex-direction: column; gap: 8px; }
+  .admin-row {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--white); border: 1px solid var(--line);
+    border-radius: 12px; padding: 12px 16px;
+  }
+  .admin-row-name { font-weight: 700; font-size: 14px; flex: 1; }
+  .admin-row-region { font-size: 12px; color: var(--muted); width: 140px; }
+  .admin-row-budget { font-size: 13px; font-weight: 600; color: var(--green); width: 90px; }
+  .admin-row-actions { display: flex; gap: 6px; }
+  .admin-row-actions button {
+    border: 1.5px solid var(--line); background: var(--paper);
+    border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 600;
+    cursor: pointer; font-family: inherit; color: var(--ink); transition: all 0.15s;
+  }
+  .admin-row-actions button:hover { border-color: var(--ink); }
+  .admin-row-actions .delete-btn:hover { border-color: #b3261e; color: #b3261e; }
+
+  .admin-form-card {
+    background: var(--white); border: 1px solid var(--line); border-radius: 16px;
+    padding: 28px; margin-bottom: 24px;
+  }
+  .admin-form-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; margin-bottom: 18px; }
+  .admin-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .admin-field { display: flex; flex-direction: column; gap: 6px; }
+  .admin-field.full { grid-column: 1 / -1; }
+  .admin-field label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .admin-field input, .admin-field textarea {
+    padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 8px;
+    font-size: 13px; font-family: inherit; background: var(--paper); color: var(--ink);
+  }
+  .admin-field textarea { resize: vertical; min-height: 60px; }
+  .admin-field-hint { font-size: 11px; color: var(--muted); }
+  .admin-duration-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .admin-duration-btn {
+    padding: 8px 14px; border: 1.5px solid var(--line); border-radius: 8px;
+    background: var(--paper); font-size: 13px; font-weight: 600;
+    color: var(--ink); cursor: pointer; font-family: inherit; transition: all 0.15s;
+  }
+  .admin-duration-btn.active { background: var(--green); border-color: var(--green); color: white; }
+  .admin-form-actions { display: flex; gap: 10px; margin-top: 18px; }
+  .admin-save-btn {
+    background: var(--ink); color: white; border: none; border-radius: 8px;
+    padding: 11px 22px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
+  }
+  .admin-cancel-btn {
+    background: none; border: 1.5px solid var(--line); border-radius: 8px;
+    padding: 11px 22px; font-size: 13px; font-weight: 600; cursor: pointer;
+    font-family: inherit; color: var(--muted);
+  }
+
+  /* ACCOUNT PAGE */
+  .account-wrap { max-width: 980px; margin: 0 auto 80px; padding: 0 32px; }
+  .account-title {
+    font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 900;
+    letter-spacing: -0.02em; margin: 8px 0 28px;
+  }
+  .account-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;
+  }
+  @media (max-width: 760px) { .account-grid { grid-template-columns: 1fr; } }
+  .account-col { display: flex; flex-direction: column; gap: 20px; }
+  .account-card {
+    background: var(--white); border: 1px solid var(--line); border-radius: 16px;
+    padding: 24px;
+  }
+  .account-card-title {
+    font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .account-form { display: flex; flex-direction: column; gap: 14px; }
+  .account-save-btn {
+    margin-top: 4px; padding: 11px; background: var(--ink); color: white;
+    border: none; border-radius: 10px; font-family: 'Playfair Display', serif;
+    font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.15s;
+  }
+  .account-save-btn:hover { background: #2d2824; }
+  .account-save-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .modal-success {
+    background: #eaf6ec; color: var(--green); font-size: 13px;
+    padding: 10px 14px; border-radius: 8px; font-weight: 500;
+  }
+  .account-meta {
+    display: flex; gap: 10px; align-items: center; margin-top: 16px;
+    padding-top: 16px; border-top: 1px solid var(--line);
+  }
+  .account-badge {
+    background: var(--orange); color: white; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 10px; border-radius: 999px;
+  }
+  .account-joined { font-size: 12px; color: var(--muted); }
+
+  .account-trip-list { display: flex; flex-direction: column; gap: 10px; }
+  .account-trip-card {
+    display: flex; gap: 12px; align-items: center;
+    background: var(--white); border: 1px solid var(--line); border-radius: 12px;
+    padding: 10px; cursor: pointer; transition: all 0.15s;
+  }
+  .account-trip-card:hover { border-color: var(--orange); transform: translateY(-1px); }
+  .account-trip-photo { width: 90px; height: 90px; border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+  .account-trip-info { flex: 1; min-width: 0; }
+  .account-trip-name { font-weight: 700; font-size: 15px; color: var(--ink); margin-bottom: 2px; }
+  .account-trip-meta { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .account-trip-budget { font-size: 13px; font-weight: 600; color: var(--green); }
+  .account-trip-remove {
+    background: none; border: 1.5px solid var(--line); border-radius: 50%;
+    width: 28px; height: 28px; flex-shrink: 0; cursor: pointer;
+    color: var(--muted); font-size: 13px; transition: all 0.15s;
+  }
+  .account-trip-remove:hover { border-color: #b3261e; color: #b3261e; }
+
+  .user-chip-name {
+    background: none; border: none; font-family: inherit; font-size: 13px;
+    font-weight: 700; color: var(--ink); cursor: pointer; padding: 0;
+  }
+  .user-chip-name:hover { color: var(--orange); text-decoration: underline; }
+
+  footer { text-align: center; padding: 32px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); }
+</style>
+</head>
+<body>
+<div id="root">Loading Roamly...</div>
+<script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.24.0/babel.min.js"></script>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+// ── LOCAL PHOTOS ─────────────────────────────────────────────────────────────
+// Put your photos inside a "photos/" folder next to index.html.
+// Each destination gets up to 3 photos. Name them like:
+//   shimla-1.jpg, shimla-2.jpg, shimla-3.jpg
+// Supported formats: .jpg .jpeg .png .webp
+// If a photo file doesn't exist, the card gracefully skips it.
+const PHOTOS = {
+  "Morni Hills":               ["photos/morni-1.jpg","photos/morni-2.jpg","photos/morni-3.jpg"],
+  "Parwanoo":                  ["photos/parwanoo-1.jpg","photos/parwanoo-2.jpg"],
+  "Kasauli":                   ["photos/kasauli-1.jpg","photos/kasauli-2.jpg","photos/kasauli-3.jpg"],
+  "Solan":                     ["photos/solan-1.jpg","photos/solan-2.jpg"],
+  "Patiala":                   ["photos/patiala-1.jpg","photos/patiala-2.jpg","photos/patiala-3.jpg"],
+  "Anandpur Sahib":            ["photos/anandpur-1.jpg","photos/anandpur-2.jpg"],
+  "Chail":                     ["photos/chail-1.jpg","photos/chail-2.jpg","photos/chail-3.jpg"],
+  "Shimla":                    ["photos/shimla-1.jpg","photos/shimla-2.jpg","photos/shimla-3.jpg"],
+  "Nahan":                     ["photos/nahan-1.jpg","photos/nahan-2.jpg"],
+  "Barog":                     ["photos/barog-1.jpg","photos/barog-2.jpg"],
+  "Amritsar":                  ["photos/amritsar-1.jpg","photos/amritsar-2.jpg","photos/amritsar-3.jpg"],
+  "Dharamshala & McLeodganj":  ["photos/dharamshala-1.jpg","photos/dharamshala-2.jpg","photos/dharamshala-3.jpg"],
+  "Triund Trek":               ["photos/triund-1.jpg","photos/triund-2.jpg","photos/triund-3.jpg"],
+  "Dalhousie":                 ["photos/dalhousie-1.jpg","photos/dalhousie-2.jpg","photos/dalhousie-3.jpg"],
+  "Manali":                    ["photos/manali-1.jpg","photos/manali-2.jpg","photos/manali-3.jpg"],
+  "Kasol":                     ["photos/kasol-1.jpg","photos/kasol-2.jpg","photos/kasol-3.jpg"],
+  "Rishikesh":                 ["photos/rishikesh-1.jpg","photos/rishikesh-2.jpg","photos/rishikesh-3.jpg"],
+  "Mussoorie":                 ["photos/mussoorie-1.jpg","photos/mussoorie-2.jpg"],
+  "Kanatal":                   ["photos/kanatal-1.jpg","photos/kanatal-2.jpg"],
+  "Jim Corbett National Park": ["photos/corbett-1.jpg","photos/corbett-2.jpg","photos/corbett-3.jpg"],
+};
+
+// ── API CONFIG ────────────────────────────────────────────────────────────────
+const API_BASE = "/api";
+
+async function apiFetch(path, options = {}) {
+  const token = localStorage.getItem("roamly_token");
+  const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
+  if (token) headers["Authorization"] = "Bearer " + token;
+  const res = await fetch(API_BASE + path, { ...options, headers });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || "Something went wrong");
+  return data;
+}
+
+
+const ALL_INTERESTS = ["hiking","nature","adventure","relaxation","nightlife","food","culture","camping","wildlife","cafes","history","city"];
+const DURATION_OPTIONS = [{id:"day",label:"Day Trip"},{id:"weekend",label:"Weekend"},{id:"multi",label:"3+ Days"}];
+const CITIES = ["Chandigarh","Amritsar","Delhi"];
+const CITY_KEY = {Chandigarh:"chandigarh",Amritsar:"amritsar",Delhi:"delhi"};
+
+function getDist(dest, city) {
+  const d = dest.distances?.[CITY_KEY[city]];
+  return d ? [d.km, d.hr] : [0, 0];
+}
+
+function getTotalBudget(dest) {
+  return (dest.budget.travel + dest.budget.stay + dest.budget.food);
+}
+
+// ── SLIDESHOW COMPONENT ───────────────────────────────────────────────────────
+function PhotoSlideshow({ name, height, isDetail }) {
+  const allPhotos = PHOTOS[name] || [];
+  const [current, setCurrent] = useState(0);
+  const [loaded, setLoaded] = useState({});
+  const [errored, setErrored] = useState({});
+
+  // Filter out errored photos
+  const photos = allPhotos.filter((_,i) => !errored[i]);
+
+  const prev = (e) => {
+    e.stopPropagation();
+    setCurrent(c => (c - 1 + photos.length) % photos.length);
+  };
+  const next = (e) => {
+    e.stopPropagation();
+    setCurrent(c => (c + 1) % photos.length);
+  };
+  const goTo = (i, e) => {
+    e.stopPropagation();
+    setCurrent(i);
+  };
+
+  // Auto-advance every 3.5s (only on cards, not detail page)
+  React.useEffect(() => {
+    if (isDetail || photos.length <= 1) return;
+    const timer = setInterval(() => setCurrent(c => (c + 1) % photos.length), 3500);
+    return () => clearInterval(timer);
+  }, [photos.length, isDetail]);
+
+  // If no photos at all, show emoji fallback
+  if (allPhotos.length === 0 || photos.length === 0) {
+    return (
+      <div style={{width:"100%",height,display:"flex",alignItems:"center",justifyContent:"center",background:"#e8dcc8",fontSize:44}}>
+        🏔️
+      </div>
+    );
+  }
+
+  return (
+    <div style={{position:"relative",height,overflow:"hidden",background:"#e8dcc8"}}>
+      {/* Slide track */}
+      <div className="slide-track" style={{transform:`translateX(-${current * 100}%)`}}>
+        {allPhotos.map((src, i) => (
+          !errored[i] && (
+            <React.Fragment key={i}>
+              {!loaded[i] && (
+                <div className="photo-skeleton" style={{position:"absolute",left:`${i*100}%`,top:0,width:"100%",height:"100%"}} />
+              )}
+              <img
+                className="slide-img"
+                src={src}
+                alt={`${name} ${i+1}`}
+                style={{opacity: loaded[i] ? 1 : 0, transition:"opacity 0.3s"}}
+                onLoad={() => setLoaded(p => ({...p,[i]:true}))}
+                onError={() => setErrored(p => ({...p,[i]:true}))}
+              />
+            </React.Fragment>
+          )
+        ))}
+      </div>
+
+      {/* Gradient overlay */}
+      <div className="card-photo-overlay" />
+
+      {/* Photo count badge */}
+      {photos.length > 1 && (
+        <div className="slide-count">{current+1} / {photos.length}</div>
+      )}
+
+      {/* Arrow buttons — only show if more than 1 photo */}
+      {photos.length > 1 && (
+        <>
+          <button className="slide-arrow slide-arrow-left" onClick={prev}>‹</button>
+          <button className="slide-arrow slide-arrow-right" onClick={next}>›</button>
+        </>
+      )}
+
+      {/* Dot indicators */}
+      {photos.length > 1 && (
+        <div className="slide-dots">
+          {photos.map((_, i) => (
+            <button key={i} className={`slide-dot${current===i?" active":""}`} onClick={(e)=>goTo(i,e)} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Detail page
+function DetailPage({ dest, city, onBack }) {
+  const [km, hr] = getDist(dest, city);
+  const total = getTotalBudget(dest);
+  const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(dest.name+', '+dest.region+', India')}`;
+  return (
+    <div className="detail-wrap">
+      <button className="back-btn" onClick={onBack}>← Back to results</button>
+      <div className="detail-photo">
+        <PhotoSlideshow name={dest.name} height="360px" isDetail={true} />
+        <div className="detail-photo-overlay" />
+        <div className="detail-photo-text">
+          <h1>{dest.name}</h1>
+          <div className="detail-region">📍 {dest.region}</div>
+        </div>
+      </div>
+
+      <div className="detail-chips">
+        <div className="chip">
+          <div className="chip-label">From {city}</div>
+          <div className="chip-value">{km} km</div>
+          <div className="chip-sub">~{hr} hrs by road</div>
+        </div>
+        <div className="chip">
+          <div className="chip-label">Total budget</div>
+          <div className="chip-value">₹{total.toLocaleString()}</div>
+          <div className="chip-sub">per person</div>
+        </div>
+        <div className="chip">
+          <div className="chip-label">Best for</div>
+          <div className="chip-value" style={{fontSize:14,marginTop:4}}>{dest.durations.join(' · ')}</div>
+        </div>
+        <div className="chip">
+          <div className="chip-label">Vibe</div>
+          <div className="chip-value" style={{fontSize:13,marginTop:4}}>{dest.tags.slice(0,2).join(', ')}</div>
+        </div>
+      </div>
+
+      <div className="detail-section">
+        <div className="section-label">Highlights</div>
+        <ul className="highlight-list">{dest.highlights.map((h,i)=><li key={i}>{h}</li>)}</ul>
+      </div>
+
+      <div className="detail-section">
+        <div className="section-label">Budget Breakdown</div>
+        <div className="budget-breakdown">
+          <div className="bb-card">
+            <span className="bb-icon">🚌</span>
+            <div className="bb-label">Travel</div>
+            <div className="bb-amount">₹{dest.budget.travel}</div>
+            <div className="bb-note">transport to/from</div>
+          </div>
+          <div className="bb-card">
+            <span className="bb-icon">🏨</span>
+            <div className="bb-label">Stay</div>
+            <div className="bb-amount">₹{dest.budget.stay}</div>
+            <div className="bb-note">budget guesthouse/night</div>
+          </div>
+          <div className="bb-card">
+            <span className="bb-icon">🍽️</span>
+            <div className="bb-label">Food</div>
+            <div className="bb-amount">₹{dest.budget.food}</div>
+            <div className="bb-note">meals per day</div>
+          </div>
+        </div>
+        <div className="bb-total">
+          <span className="bb-total-label">Total estimated / person</span>
+          <span className="bb-total-amount">₹{total.toLocaleString()}</span>
+        </div>
+      </div>
+
+      <div className="detail-section">
+        <div className="section-label">How to Get There</div>
+        <div className="transport-grid">
+          {dest.transport.map((t,i)=>(
+            <div className="transport-row" key={i}>
+              <div className="transport-icon">{t.icon}</div>
+              <div className="transport-info">
+                <div className="transport-mode">{t.mode}</div>
+                <div className="transport-detail">{t.detail}</div>
+              </div>
+              <div className="transport-cost">{t.cost}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="detail-section">
+        <div className="section-label">Suggested Itinerary</div>
+        <div className="itinerary">
+          {dest.itinerary.map((item,i)=>(
+            <div className="itin-item" key={i}>
+              <span className="itin-badge">{item.day}</span>
+              <div className="itin-text">{item.plan}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="detail-section">
+        <div className="section-label">Best Time to Visit</div>
+        <div className="best-time-box">📅 {dest.best_time}</div>
+      </div>
+
+      <div className="detail-section">
+        <div className="section-label">What to Pack</div>
+        <div className="pack-row">{dest.pack.map((p,i)=><span className="pack-chip" key={i}>🎒 {p}</span>)}</div>
+      </div>
+
+      <div className="detail-section">
+        <div className="section-label">Vibes</div>
+        <div className="detail-tag-row">{dest.tags.map(t=><span className="detail-tag" key={t}>{t}</span>)}</div>
+      </div>
+
+      <div className="detail-section">
+        <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="maps-link">🗺️ Open in Google Maps</a>
+      </div>
+    </div>
+  );
+}
+
+// Main app
+// ── AUTH MODAL ────────────────────────────────────────────────────────────────
+function AuthModal({ mode, onClose, onAuthed }) {
+  const [isLogin, setIsLogin] = useState(mode === "login");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [adminCode, setAdminCode] = useState("");
+  const [showAdminCode, setShowAdminCode] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setError(""); setLoading(true);
+    try {
+      const path = isLogin ? "/auth/login" : "/auth/signup";
+      const body = isLogin ? { email, password } : { name, email, password, adminCode };
+      const data = await apiFetch(path, { method: "POST", body: JSON.stringify(body) });
+      localStorage.setItem("roamly_token", data.token);
+      localStorage.setItem("roamly_user", JSON.stringify(data.user));
+      onAuthed(data.user);
+      onClose();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-card" onClick={e=>e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose}>✕</button>
+        <h2 className="modal-title">{isLogin ? "Welcome back" : "Create your account"}</h2>
+        <p className="modal-sub">{isLogin ? "Log in to save trips and build your wishlist." : "Sign up to save destinations and plan your escapes."}</p>
+
+        <form onSubmit={submit} className="modal-form">
+          {!isLogin && (
+            <div className="modal-field">
+              <label>Name</label>
+              <input type="text" value={name} onChange={e=>setName(e.target.value)} required placeholder="Your name" />
+            </div>
+          )}
+          <div className="modal-field">
+            <label>Email</label>
+            <input type="email" value={email} onChange={e=>setEmail(e.target.value)} required placeholder="you@example.com" />
+          </div>
+          <div className="modal-field">
+            <label>Password</label>
+            <input type="password" value={password} onChange={e=>setPassword(e.target.value)} required placeholder="At least 6 characters" minLength={6} />
+          </div>
+
+          {!isLogin && !showAdminCode && (
+            <button type="button" className="modal-tiny-link" onClick={()=>setShowAdminCode(true)}>Have an admin code?</button>
+          )}
+          {!isLogin && showAdminCode && (
+            <div className="modal-field">
+              <label>Admin code</label>
+              <input type="text" value={adminCode} onChange={e=>setAdminCode(e.target.value)} placeholder="Optional" />
+            </div>
+          )}
+
+          {error && <div className="modal-error">{error}</div>}
+
+          <button type="submit" className="modal-submit" disabled={loading}>
+            {loading ? "Please wait..." : (isLogin ? "Log In" : "Sign Up")}
+          </button>
+        </form>
+
+        <div className="modal-switch">
+          {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+          <button type="button" onClick={()=>{setIsLogin(!isLogin); setError("");}}>{isLogin ? "Sign up" : "Log in"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── MAIN APP ──────────────────────────────────────────────────────────────────
+// ── ADMIN PANEL ───────────────────────────────────────────────────────────────
+const BLANK_DEST = {
+  name: "", region: "",
+  budget_travel: 0, budget_stay: 0, budget_food: 0,
+  durations: [], tags: [], highlights: [], transport: [], itinerary: [],
+  best_time: "", pack: [],
+  dist_chandigarh: 0, hr_chandigarh: 0,
+  dist_amritsar: 0,   hr_amritsar: 0,
+  dist_delhi: 0,      hr_delhi: 0,
+};
+
+function csvToArr(str) { return str.split(",").map(s=>s.trim()).filter(Boolean); }
+function arrToCsv(arr) { return (arr || []).join(", "); }
+
+function DestinationForm({ initial, onSave, onCancel }) {
+  const [form, setForm] = useState(() => ({
+    ...initial,
+    tagsCsv: arrToCsv(initial.tags),
+    highlightsCsv: (initial.highlights || []).join("\n"),
+    packCsv: arrToCsv(initial.pack),
+    durations: initial.durations && initial.durations.length ? initial.durations : [],
+  }));
+  const [saving, setSaving] = useState(false);
+
+  const field = (key) => ({
+    value: form[key],
+    onChange: e => setForm(f => ({ ...f, [key]: e.target.value }))
+  });
+
+  const VALID_DURATIONS = [
+    { id: "day", label: "Day Trip" },
+    { id: "weekend", label: "Weekend" },
+    { id: "multi", label: "3+ Days" },
+  ];
+
+  const toggleDuration = (id) => {
+    setForm(f => ({
+      ...f,
+      durations: f.durations.includes(id) ? f.durations.filter(d => d !== id) : [...f.durations, id]
+    }));
+  };
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (form.durations.length === 0) {
+      alert("Please select at least one trip duration (Day Trip, Weekend, or 3+ Days).");
+      return;
+    }
+    setSaving(true);
+    const payload = {
+      ...form,
+      tags: csvToArr(form.tagsCsv),
+      highlights: form.highlightsCsv.split("\n").map(s=>s.trim()).filter(Boolean),
+      pack: csvToArr(form.packCsv),
+      durations: form.durations,
+      transport: form.transport || [],
+      itinerary: form.itinerary || [],
+      budget_travel: Number(form.budget_travel) || 0,
+      budget_stay:   Number(form.budget_stay) || 0,
+      budget_food:   Number(form.budget_food) || 0,
+      dist_chandigarh: Number(form.dist_chandigarh) || 0,
+      hr_chandigarh:   Number(form.hr_chandigarh) || 0,
+      dist_amritsar:   Number(form.dist_amritsar) || 0,
+      hr_amritsar:     Number(form.hr_amritsar) || 0,
+      dist_delhi:      Number(form.dist_delhi) || 0,
+      hr_delhi:        Number(form.hr_delhi) || 0,
+    };
+    await onSave(payload);
+    setSaving(false);
+  };
+
+  return (
+    <form className="admin-form-card" onSubmit={submit}>
+      <div className="admin-form-title">{initial.id ? "Edit destination" : "Add new destination"}</div>
+      <div className="admin-form-grid">
+        <div className="admin-field"><label>Name</label><input {...field("name")} required /></div>
+        <div className="admin-field"><label>Region</label><input {...field("region")} required /></div>
+
+        <div className="admin-field"><label>Travel budget (₹)</label><input type="number" {...field("budget_travel")} /></div>
+        <div className="admin-field"><label>Stay budget (₹)</label><input type="number" {...field("budget_stay")} /></div>
+        <div className="admin-field"><label>Food budget (₹)</label><input type="number" {...field("budget_food")} /></div>
+        <div className="admin-field">
+          <label>Durations (select all that apply)</label>
+          <div className="admin-duration-row">
+            {VALID_DURATIONS.map(opt => (
+              <button
+                type="button"
+                key={opt.id}
+                className={"admin-duration-btn" + (form.durations.includes(opt.id) ? " active" : "")}
+                onClick={() => toggleDuration(opt.id)}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="admin-field"><label>Tags</label><input {...field("tagsCsv")} placeholder="hiking, nature, cafes" /></div>
+        <div className="admin-field"><label>Best time to visit</label><input {...field("best_time")} /></div>
+
+        <div className="admin-field full"><label>Highlights (one per line)</label>
+          <textarea {...field("highlightsCsv")} rows={3} />
+        </div>
+        <div className="admin-field full"><label>What to pack</label><input {...field("packCsv")} placeholder="Warm jacket, Camera, Walking shoes" /></div>
+
+        <div className="admin-field"><label>Distance from Chandigarh (km)</label><input type="number" {...field("dist_chandigarh")} /></div>
+        <div className="admin-field"><label>Hours from Chandigarh</label><input type="number" step="0.5" {...field("hr_chandigarh")} /></div>
+        <div className="admin-field"><label>Distance from Amritsar (km)</label><input type="number" {...field("dist_amritsar")} /></div>
+        <div className="admin-field"><label>Hours from Amritsar</label><input type="number" step="0.5" {...field("hr_amritsar")} /></div>
+        <div className="admin-field"><label>Distance from Delhi (km)</label><input type="number" {...field("dist_delhi")} /></div>
+        <div className="admin-field"><label>Hours from Delhi</label><input type="number" step="0.5" {...field("hr_delhi")} /></div>
+      </div>
+
+      <div className="admin-form-actions">
+        <button type="submit" className="admin-save-btn" disabled={saving}>{saving ? "Saving..." : "Save destination"}</button>
+        <button type="button" className="admin-cancel-btn" onClick={onCancel}>Cancel</button>
+      </div>
+    </form>
+  );
+}
+
+function AdminPanel({ destinations, onRefresh }) {
+  const [editing, setEditing] = useState(null); // null | destination object
+  const [error, setError] = useState("");
+
+  const startEdit = (dest) => setEditing(dest);
+  const startNew  = () => setEditing({ ...BLANK_DEST });
+  const cancel    = () => setEditing(null);
+
+  const save = async (payload) => {
+    setError("");
+    try {
+      if (payload.id) {
+        await apiFetch(`/destinations/${payload.id}`, { method: "PUT", body: JSON.stringify(payload) });
+      } else {
+        await apiFetch("/destinations", { method: "POST", body: JSON.stringify(payload) });
+      }
+      setEditing(null);
+      onRefresh();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const remove = async (id) => {
+    if (!confirm("Delete this destination? This can't be undone.")) return;
+    try {
+      await apiFetch(`/destinations/${id}`, { method: "DELETE" });
+      onRefresh();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  return (
+    <div className="admin-wrap">
+      <div className="admin-header">
+        <div className="admin-title">Manage destinations</div>
+        {!editing && <button className="admin-add-btn" onClick={startNew}>+ Add destination</button>}
+      </div>
+
+      {error && <div className="modal-error" style={{marginBottom:16}}>{error}</div>}
+
+      {editing && (
+        <DestinationForm initial={editing} onSave={save} onCancel={cancel} />
+      )}
+
+      <div className="admin-table">
+        {destinations.map(d => (
+          <div className="admin-row" key={d.id}>
+            <div className="admin-row-name">{d.name}</div>
+            <div className="admin-row-region">{d.region}</div>
+            <div className="admin-row-budget">₹{(d.budget.travel + d.budget.stay + d.budget.food).toLocaleString()}</div>
+            <div className="admin-row-actions">
+              <button onClick={()=>startEdit(d)}>Edit</button>
+              <button className="delete-btn" onClick={()=>remove(d.id)}>Delete</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── ACCOUNT PAGE ─────────────────────────────────────────────────────────────
+function AccountPage({ user, onUserUpdate, savedDestinations, city, onBack, onSelectDest, onToggleWishlist, wishlistIds }) {
+  const [name, setName] = useState(user.name);
+  const [email, setEmail] = useState(user.email);
+  const [profileMsg, setProfileMsg] = useState("");
+  const [profileErr, setProfileErr] = useState("");
+  const [savingProfile, setSavingProfile] = useState(false);
+
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [pwMsg, setPwMsg] = useState("");
+  const [pwErr, setPwErr] = useState("");
+  const [savingPw, setSavingPw] = useState(false);
+
+  const saveProfile = async (e) => {
+    e.preventDefault();
+    setProfileErr(""); setProfileMsg(""); setSavingProfile(true);
+    try {
+      const updated = await apiFetch("/auth/me", { method: "PUT", body: JSON.stringify({ name, email }) });
+      const merged = { ...user, name: updated.name, email: updated.email };
+      localStorage.setItem("roamly_user", JSON.stringify(merged));
+      onUserUpdate(merged);
+      setProfileMsg("Profile updated.");
+    } catch (err) {
+      setProfileErr(err.message);
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
+  const savePassword = async (e) => {
+    e.preventDefault();
+    setPwErr(""); setPwMsg(""); setSavingPw(true);
+    try {
+      await apiFetch("/auth/password", { method: "PUT", body: JSON.stringify({ currentPassword, newPassword }) });
+      setPwMsg("Password changed.");
+      setCurrentPassword(""); setNewPassword("");
+    } catch (err) {
+      setPwErr(err.message);
+    } finally {
+      setSavingPw(false);
+    }
+  };
+
+  return (
+    <div className="account-wrap">
+      <button className="back-btn" onClick={onBack}>← Back</button>
+      <h1 className="account-title">My Account</h1>
+
+      <div className="account-grid">
+        <div className="account-col">
+          <div className="account-card">
+            <div className="account-card-title">Profile</div>
+            <form onSubmit={saveProfile} className="account-form">
+              <div className="modal-field">
+                <label>Name</label>
+                <input type="text" value={name} onChange={e=>setName(e.target.value)} required />
+              </div>
+              <div className="modal-field">
+                <label>Email</label>
+                <input type="email" value={email} onChange={e=>setEmail(e.target.value)} required />
+              </div>
+              {profileErr && <div className="modal-error">{profileErr}</div>}
+              {profileMsg && <div className="modal-success">{profileMsg}</div>}
+              <button type="submit" className="account-save-btn" disabled={savingProfile}>
+                {savingProfile ? "Saving..." : "Save profile"}
+              </button>
+            </form>
+            <div className="account-meta">
+              {user.role === "admin" && <span className="account-badge">Admin</span>}
+              {user.created_at && <span className="account-joined">Joined {new Date(user.created_at).toLocaleDateString()}</span>}
+            </div>
+          </div>
+
+          <div className="account-card">
+            <div className="account-card-title">Change Password</div>
+            <form onSubmit={savePassword} className="account-form">
+              <div className="modal-field">
+                <label>Current password</label>
+                <input type="password" value={currentPassword} onChange={e=>setCurrentPassword(e.target.value)} required />
+              </div>
+              <div className="modal-field">
+                <label>New password</label>
+                <input type="password" value={newPassword} onChange={e=>setNewPassword(e.target.value)} required minLength={6} placeholder="At least 6 characters" />
+              </div>
+              {pwErr && <div className="modal-error">{pwErr}</div>}
+              {pwMsg && <div className="modal-success">{pwMsg}</div>}
+              <button type="submit" className="account-save-btn" disabled={savingPw}>
+                {savingPw ? "Updating..." : "Update password"}
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div className="account-col">
+          <div className="account-card-title" style={{marginBottom: 14}}>Saved Trips ({savedDestinations.length})</div>
+          {savedDestinations.length === 0 ? (
+            <div className="empty" style={{padding: "40px 20px"}}>
+              <span className="empty-icon">♡</span>
+              <h3>No saved trips yet</h3>
+              <p>Heart any destination to save it here.</p>
+            </div>
+          ) : (
+            <div className="account-trip-list">
+              {savedDestinations.map(dest => {
+                const [km, hr] = getDist(dest, city);
+                return (
+                  <div className="account-trip-card" key={dest.id} onClick={()=>onSelectDest(dest)}>
+                    <div className="account-trip-photo">
+                      <PhotoSlideshow name={dest.name} height="90px" isDetail={true} />
+                    </div>
+                    <div className="account-trip-info">
+                      <div className="account-trip-name">{dest.name}</div>
+                      <div className="account-trip-meta">{dest.region} · {km}km from {city}</div>
+                      <div className="account-trip-budget">₹{getTotalBudget(dest).toLocaleString()}/person</div>
+                    </div>
+                    <button className="account-trip-remove" onClick={(e)=>onToggleWishlist(dest.id, e)}>✕</button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+function App() {
+  const [city, setCity] = useState("Chandigarh");
+  const [budget, setBudget] = useState(2000);
+  const [duration, setDuration] = useState("weekend");
+  const [interests, setInterests] = useState([]);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [results, setResults] = useState([]);
+  const [selected, setSelected] = useState(null);
+
+  const [allDestinations, setAllDestinations] = useState([]);
+  const [loadingDestinations, setLoadingDestinations] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
+  const [user, setUser] = useState(null);
+  const [authMode, setAuthMode] = useState(null); // null | "login" | "signup"
+  const [wishlistIds, setWishlistIds] = useState([]);
+  const [showWishlistOnly, setShowWishlistOnly] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
+  const [showAccount, setShowAccount] = useState(false);
+
+  // Load destinations from backend on first render
+  useEffect(() => {
+    apiFetch("/destinations")
+      .then(data => { setAllDestinations(data); setLoadingDestinations(false); })
+      .catch(err => { setLoadError(err.message); setLoadingDestinations(false); });
+  }, []);
+
+  // Restore logged-in user from localStorage
+  useEffect(() => {
+    const savedUser = localStorage.getItem("roamly_user");
+    const token = localStorage.getItem("roamly_token");
+    if (savedUser && token) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
+
+  // Load wishlist whenever user logs in
+  useEffect(() => {
+    if (!user) { setWishlistIds([]); return; }
+    apiFetch("/wishlist/ids").then(setWishlistIds).catch(() => {});
+  }, [user]);
+
+  const toggleInterest = tag => setInterests(prev => prev.includes(tag) ? prev.filter(t=>t!==tag) : [...prev,tag]);
+
+  const handleSearch = e => {
+    e.preventDefault();
+    const matches = allDestinations.filter(dest => {
+      const total = getTotalBudget(dest);
+      const withinBudget = total <= Number(budget);
+      const matchesDuration = dest.durations.includes(duration);
+      const matchesInterest = interests.length===0 || interests.some(t=>dest.tags.includes(t));
+      const notSelf = !(dest.name==="Amritsar" && city==="Amritsar");
+      return withinBudget && matchesDuration && matchesInterest && notSelf;
+    }).sort((a,b) => {
+      const am = interests.filter(t=>a.tags.includes(t)).length;
+      const bm = interests.filter(t=>b.tags.includes(t)).length;
+      return bm!==am ? bm-am : getTotalBudget(a)-getTotalBudget(b);
+    });
+    setResults(matches); setHasSearched(true); setSelected(null); setShowWishlistOnly(false);
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+
+  const goBack = () => { setSelected(null); window.scrollTo({top:0,behavior:'smooth'}); };
+  const goHome = () => { setSelected(null); setHasSearched(false); setShowWishlistOnly(false); setShowAdmin(false); setShowAccount(false); window.scrollTo({top:0}); };
+
+  const logout = () => {
+    localStorage.removeItem("roamly_token");
+    localStorage.removeItem("roamly_user");
+    setUser(null);
+    setShowWishlistOnly(false);
+    setShowAdmin(false);
+    setShowAccount(false);
+  };
+
+  const openAccount = () => {
+    setShowAccount(true); setShowAdmin(false); setSelected(null); setHasSearched(false);
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+
+  const toggleWishlist = async (destId, e) => {
+    e.stopPropagation();
+    if (!user) { setAuthMode("login"); return; }
+    const isSaved = wishlistIds.includes(destId);
+    try {
+      if (isSaved) {
+        await apiFetch(`/wishlist/${destId}`, { method: "DELETE" });
+        setWishlistIds(prev => prev.filter(id => id !== destId));
+      } else {
+        await apiFetch(`/wishlist/${destId}`, { method: "POST" });
+        setWishlistIds(prev => [...prev, destId]);
+      }
+    } catch (err) {
+      console.error(err.message);
+    }
+  };
+
+  const viewWishlist = () => {
+    if (!user) { setAuthMode("login"); return; }
+    const saved = allDestinations.filter(d => wishlistIds.includes(d.id));
+    setResults(saved); setHasSearched(true); setSelected(null); setShowWishlistOnly(true); setShowAdmin(false);
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+
+  const refreshDestinations = () => {
+    apiFetch("/destinations").then(setAllDestinations).catch(()=>{});
+  };
+
+  const openAdmin = () => {
+    setShowAdmin(true); setSelected(null); setHasSearched(false);
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+
+  if (loadingDestinations) {
+    return (
+      <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:12}}>
+        <div style={{fontSize:32}}>🧭</div>
+        <div style={{color:"var(--muted)",fontSize:14}}>Loading destinations...</div>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:12,padding:24,textAlign:"center"}}>
+        <div style={{fontSize:32}}>⚠️</div>
+        <div style={{color:"var(--ink)",fontSize:15,fontWeight:600}}>Couldn't reach the server</div>
+        <div style={{color:"var(--muted)",fontSize:13,maxWidth:320}}>{loadError}. Make sure your backend is running with <code>node server.js</code>.</div>
+      </div>
+    );
+  }
+
+  return (
+    <React.Fragment>
+      <header className="site-header">
+        <div className="header-inner">
+          <div className="logo" onClick={goHome}>
+            <div className="logo-mark">R</div>
+            <span className="logo-text">Roamly</span>
+          </div>
+          <div style={{display:"flex",alignItems:"center",gap:14}}>
+            {user && user.role === "admin" && (
+              <button className="wishlist-nav-btn" onClick={openAdmin}>⚙ Manage</button>
+            )}
+            {user && (
+              <button className="wishlist-nav-btn" onClick={viewWishlist}>♡ Saved ({wishlistIds.length})</button>
+            )}
+            {user ? (
+              <div className="user-chip">
+                <button className="user-chip-name" onClick={openAccount}>{user.name.split(" ")[0]}</button>
+                <button onClick={logout}>Log out</button>
+              </div>
+            ) : (
+              <div style={{display:"flex",gap:8}}>
+                <button className="auth-nav-btn" onClick={()=>setAuthMode("login")}>Log in</button>
+                <button className="auth-nav-btn primary" onClick={()=>setAuthMode("signup")}>Sign up</button>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {authMode && (
+        <AuthModal mode={authMode} onClose={()=>setAuthMode(null)} onAuthed={setUser} />
+      )}
+
+      {showAccount ? (
+        <React.Fragment>
+          <AccountPage
+            user={user}
+            onUserUpdate={setUser}
+            savedDestinations={allDestinations.filter(d => wishlistIds.includes(d.id))}
+            city={city}
+            onBack={goHome}
+            onSelectDest={(dest) => { setShowAccount(false); setSelected(dest); window.scrollTo({top:0}); }}
+            onToggleWishlist={toggleWishlist}
+            wishlistIds={wishlistIds}
+          />
+          <footer>Roamly · Account settings</footer>
+        </React.Fragment>
+      ) : showAdmin ? (
+        <React.Fragment>
+          <AdminPanel destinations={allDestinations} onRefresh={refreshDestinations} />
+          <footer>Roamly · Admin mode</footer>
+        </React.Fragment>
+      ) : selected ? (
+        <React.Fragment>
+          <DetailPage dest={selected} city={city} onBack={goBack} />
+          <footer>Roamly · Distances from {city} · Budgets are estimates · Photos are local uploads</footer>
+        </React.Fragment>
+      ) : (
+        <React.Fragment>
+          {!hasSearched && (
+            <section className="hero">
+              <div className="hero-eyebrow">Discover North India</div>
+              <h1>Your next <em>escape</em><br />starts here</h1>
+              <p className="hero-sub">Enter your city, budget, and trip length. We'll find weekend getaways that actually fit.</p>
+            </section>
+          )}
+
+          <div className="form-wrap">
+            <form className="form-card" onSubmit={handleSearch}>
+              <div className="form-grid">
+                <div className="form-section">
+                  <span className="form-section-label">Starting from</span>
+                  <div className="city-row">
+                    {CITIES.map(c=>(
+                      <button type="button" key={c} className={"city-btn"+(city===c?" active":"")} onClick={()=>setCity(c)}>{c}</button>
+                    ))}
+                  </div>
+                </div>
+                <div className="form-section">
+                  <span className="form-section-label">Total budget / person</span>
+                  <div style={{display:"flex",alignItems:"baseline",gap:4}}>
+                    <span style={{fontSize:18,fontWeight:700,color:"#8a7f72"}}>₹</span>
+                    <input className="budget-input" type="number" min="0" step="100" value={budget} onChange={e=>setBudget(e.target.value)} />
+                  </div>
+                  <div className="budget-hint">travel + stay + food combined</div>
+                </div>
+                <div className="form-section">
+                  <span className="form-section-label">Trip length</span>
+                  <div className="dur-row">
+                    {DURATION_OPTIONS.map(opt=>(
+                      <button type="button" key={opt.id} className={"dur-btn"+(duration===opt.id?" active":"")} onClick={()=>setDuration(opt.id)}>{opt.label}</button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="form-label-row">What are you into? (pick any)</div>
+              <div className="interests-row">
+                {ALL_INTERESTS.map(tag=>(
+                  <button type="button" key={tag} className={"int-btn"+(interests.includes(tag)?" active":"")} onClick={()=>toggleInterest(tag)}>{tag}</button>
+                ))}
+              </div>
+              <button type="submit" className="search-btn">Find my getaway →</button>
+            </form>
+          </div>
+
+          {hasSearched && (
+            <div className="results-wrap">
+              <div className="results-bar">
+                <h2 className="results-title">{showWishlistOnly ? "Your saved escapes" : `Escapes from ${city}`}</h2>
+                <span className="results-count">{results.length} found</span>
+              </div>
+              {results.length===0 ? (
+                <div className="empty">
+                  <span className="empty-icon">{showWishlistOnly ? "♡" : "🧭"}</span>
+                  <h3>{showWishlistOnly ? "No saved destinations yet" : "No matches yet"}</h3>
+                  <p>{showWishlistOnly ? "Tap the heart on any destination to save it here." : "Try raising your budget or clearing some interest filters."}</p>
+                </div>
+              ) : (
+                <div className="card-grid">
+                  {results.map(dest=>{
+                    const [km,hr]=getDist(dest,city);
+                    const total=getTotalBudget(dest);
+                    const isSaved = wishlistIds.includes(dest.id);
+                    return (
+                      <div className="dest-card" key={dest.id} onClick={()=>setSelected(dest)}>
+                        <div className="card-photo">
+                          <PhotoSlideshow name={dest.name} height="210px" isDetail={false} />
+                          <div className="card-photo-overlay" />
+                          <div className="card-dist-pill">🕐 {hr}h · {km}km</div>
+                          <button className={"card-heart"+(isSaved?" saved":"")} onClick={(e)=>toggleWishlist(dest.id,e)}>
+                            {isSaved ? "♥" : "♡"}
+                          </button>
+                          <div className="card-region-pill">{dest.region}</div>
+                          <div className="card-name-overlay">{dest.name}</div>
+                        </div>
+                        <div className="card-body">
+                          <div className="card-budget-strip">
+                            <div className="budget-item">
+                              <span className="budget-item-label">✈ Travel</span>
+                              <span className="budget-item-val">₹{dest.budget.travel}</span>
+                            </div>
+                            <div className="budget-item">
+                              <span className="budget-item-label">🏨 Stay</span>
+                              <span className="budget-item-val">₹{dest.budget.stay}</span>
+                            </div>
+                            <div className="budget-item">
+                              <span className="budget-item-label">🍽 Food</span>
+                              <span className="budget-item-val">₹{dest.budget.food}</span>
+                            </div>
+                          </div>
+                          <div className="card-transport">
+                            {dest.transport.slice(0,2).map((t,i)=>(
+                              <span className="transport-pill" key={i}>{t.icon} {t.mode}</span>
+                            ))}
+                          </div>
+                          <ul className="card-highlights">
+                            {dest.highlights.slice(0,2).map((h,i)=><li key={i}>{h}</li>)}
+                          </ul>
+                          <div className="card-tags">
+                            {dest.tags.slice(0,4).map(t=><span className="card-tag" key={t}>{t}</span>)}
+                          </div>
+                          <div className="card-footer">
+                            <div className="card-total">Total <strong>₹{total.toLocaleString()}</strong>/person</div>
+                            <button className="card-view-btn" onClick={e=>{e.stopPropagation();setSelected(dest);}}>Details →</button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+          <footer>Roamly · Distances from {city} · Budget estimates are approximate · Photos are local uploads</footer>
+        </React.Fragment>
+      )}
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
