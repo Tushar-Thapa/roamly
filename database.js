@@ -96,6 +96,7 @@ async function lastInsertId(insertResult) {
 // ── Initialize DB: create tables + seed if empty ────────────────────────────
 async function initDb() {
   await pool.query(SQL_SCHEMA);
+  await pool.query("ALTER TABLE destinations ADD COLUMN IF NOT EXISTS photos TEXT NOT NULL DEFAULT '[]'");
   console.log('✅ Tables ready');
 
   const countResult = await pool.query('SELECT COUNT(*) as c FROM destinations');
