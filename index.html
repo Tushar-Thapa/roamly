@@ -469,6 +469,29 @@
   }
   .admin-field textarea { resize: vertical; min-height: 60px; }
   .admin-field-hint { font-size: 11px; color: var(--muted); }
+  .admin-photo-section { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .admin-field-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+  .admin-photo-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-start; }
+  .admin-photo-thumb {
+    position: relative; width: 100px; height: 80px;
+    border-radius: 8px; overflow: hidden;
+    border: 1.5px solid var(--line);
+  }
+  .admin-photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .admin-photo-remove {
+    position: absolute; top: 4px; right: 4px;
+    background: rgba(0,0,0,0.6); color: white;
+    border: none; border-radius: 50%; width: 20px; height: 20px;
+    font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+  .admin-photo-upload-btn {
+    width: 100px; height: 80px; border-radius: 8px;
+    border: 2px dashed var(--line); background: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600; color: var(--muted);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .admin-photo-upload-btn:hover { border-color: var(--orange); color: var(--orange); }
   .admin-duration-row { display: flex; gap: 6px; flex-wrap: wrap; }
   .admin-duration-btn {
     padding: 8px 14px; border: 1.5px solid var(--line); border-radius: 8px;
@@ -570,29 +593,6 @@ const { useState, useEffect } = React;
 //   shimla-1.jpg, shimla-2.jpg, shimla-3.jpg
 // Supported formats: .jpg .jpeg .png .webp
 // If a photo file doesn't exist, the card gracefully skips it.
-const PHOTOS = {
-  "Morni Hills":               ["photos/morni-1.jpg","photos/morni-2.jpg","photos/morni-3.jpg"],
-  "Parwanoo":                  ["photos/parwanoo-1.jpg","photos/parwanoo-2.jpg"],
-  "Kasauli":                   ["photos/kasauli-1.jpg","photos/kasauli-2.jpg","photos/kasauli-3.jpg"],
-  "Solan":                     ["photos/solan-1.jpg","photos/solan-2.jpg"],
-  "Patiala":                   ["photos/patiala-1.jpg","photos/patiala-2.jpg","photos/patiala-3.jpg"],
-  "Anandpur Sahib":            ["photos/anandpur-1.jpg","photos/anandpur-2.jpg"],
-  "Chail":                     ["photos/chail-1.jpg","photos/chail-2.jpg","photos/chail-3.jpg"],
-  "Shimla":                    ["photos/shimla-1.jpg","photos/shimla-2.jpg","photos/shimla-3.jpg"],
-  "Nahan":                     ["photos/nahan-1.jpg","photos/nahan-2.jpg"],
-  "Barog":                     ["photos/barog-1.jpg","photos/barog-2.jpg"],
-  "Amritsar":                  ["photos/amritsar-1.jpg","photos/amritsar-2.jpg","photos/amritsar-3.jpg"],
-  "Dharamshala & McLeodganj":  ["photos/dharamshala-1.jpg","photos/dharamshala-2.jpg","photos/dharamshala-3.jpg"],
-  "Triund Trek":               ["photos/triund-1.jpg","photos/triund-2.jpg","photos/triund-3.jpg"],
-  "Dalhousie":                 ["photos/dalhousie-1.jpg","photos/dalhousie-2.jpg","photos/dalhousie-3.jpg"],
-  "Manali":                    ["photos/manali-1.jpg","photos/manali-2.jpg","photos/manali-3.jpg"],
-  "Kasol":                     ["photos/kasol-1.jpg","photos/kasol-2.jpg","photos/kasol-3.jpg"],
-  "Rishikesh":                 ["photos/rishikesh-1.jpg","photos/rishikesh-2.jpg","photos/rishikesh-3.jpg"],
-  "Mussoorie":                 ["photos/mussoorie-1.jpg","photos/mussoorie-2.jpg"],
-  "Kanatal":                   ["photos/kanatal-1.jpg","photos/kanatal-2.jpg"],
-  "Jim Corbett National Park": ["photos/corbett-1.jpg","photos/corbett-2.jpg","photos/corbett-3.jpg"],
-};
-
 // ── API CONFIG ────────────────────────────────────────────────────────────────
 const API_BASE = "/api";
 
@@ -622,8 +622,9 @@ function getTotalBudget(dest) {
 }
 
 // ── SLIDESHOW COMPONENT ───────────────────────────────────────────────────────
-function PhotoSlideshow({ name, height, isDetail }) {
-  const allPhotos = PHOTOS[name] || [];
+// photos: array of Cloudinary URLs from the database (dest.photos)
+function PhotoSlideshow({ photos: photoProp, height, isDetail }) {
+  const allPhotos = photoProp || [];
   const [current, setCurrent] = useState(0);
   const [loaded, setLoaded] = useState({});
   const [errored, setErrored] = useState({});
@@ -720,7 +721,7 @@ function DetailPage({ dest, city, onBack }) {
     <div className="detail-wrap">
       <button className="back-btn" onClick={onBack}>← Back to results</button>
       <div className="detail-photo">
-        <PhotoSlideshow name={dest.name} height="360px" isDetail={true} />
+        <PhotoSlideshow photos={dest.photos || []} height="360px" isDetail={true} />
         <div className="detail-photo-overlay" />
         <div className="detail-photo-text">
           <h1>{dest.name}</h1>
@@ -921,6 +922,7 @@ const BLANK_DEST = {
   dist_chandigarh: 0, hr_chandigarh: 0,
   dist_amritsar: 0,   hr_amritsar: 0,
   dist_delhi: 0,      hr_delhi: 0,
+  photos: [],
 };
 
 function csvToArr(str) { return str.split(",").map(s=>s.trim()).filter(Boolean); }
@@ -933,8 +935,11 @@ function DestinationForm({ initial, onSave, onCancel }) {
     highlightsCsv: (initial.highlights || []).join("\n"),
     packCsv: arrToCsv(initial.pack),
     durations: initial.durations && initial.durations.length ? initial.durations : [],
+    photos: initial.photos || [],
   }));
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
 
   const field = (key) => ({
     value: form[key],
@@ -954,6 +959,39 @@ function DestinationForm({ initial, onSave, onCancel }) {
     }));
   };
 
+  const uploadPhoto = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (form.photos.length >= 3) {
+      setUploadError("Maximum 3 photos per destination.");
+      return;
+    }
+    setUploading(true);
+    setUploadError("");
+    try {
+      const token = localStorage.getItem("roamly_token");
+      const formData = new FormData();
+      formData.append("photo", file);
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        headers: { Authorization: "Bearer " + token },
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Upload failed");
+      setForm(f => ({ ...f, photos: [...f.photos, data.url] }));
+    } catch (err) {
+      setUploadError(err.message);
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
+
+  const removePhoto = (url) => {
+    setForm(f => ({ ...f, photos: f.photos.filter(p => p !== url) }));
+  };
+
   const submit = async (e) => {
     e.preventDefault();
     if (form.durations.length === 0) {
@@ -967,6 +1005,7 @@ function DestinationForm({ initial, onSave, onCancel }) {
       highlights: form.highlightsCsv.split("\n").map(s=>s.trim()).filter(Boolean),
       pack: csvToArr(form.packCsv),
       durations: form.durations,
+      photos: form.photos,
       transport: form.transport || [],
       itinerary: form.itinerary || [],
       budget_travel: Number(form.budget_travel) || 0,
@@ -1023,6 +1062,26 @@ function DestinationForm({ initial, onSave, onCancel }) {
         <div className="admin-field"><label>Hours from Amritsar</label><input type="number" step="0.5" {...field("hr_amritsar")} /></div>
         <div className="admin-field"><label>Distance from Delhi (km)</label><input type="number" {...field("dist_delhi")} /></div>
         <div className="admin-field"><label>Hours from Delhi</label><input type="number" step="0.5" {...field("hr_delhi")} /></div>
+      </div>
+
+      <div className="admin-photo-section">
+        <div className="admin-field-label">Photos (up to 3) — uploaded to Cloudinary</div>
+        <div className="admin-photo-row">
+          {form.photos.map((url, i) => (
+            <div className="admin-photo-thumb" key={i}>
+              <img src={url} alt={`Photo ${i+1}`} />
+              <button type="button" className="admin-photo-remove" onClick={()=>removePhoto(url)}>✕</button>
+            </div>
+          ))}
+          {form.photos.length < 3 && (
+            <label className="admin-photo-upload-btn">
+              {uploading ? "Uploading..." : "+ Add photo"}
+              <input type="file" accept="image/*" onChange={uploadPhoto} style={{display:"none"}} disabled={uploading} />
+            </label>
+          )}
+        </div>
+        {uploadError && <div className="modal-error" style={{marginTop:8}}>{uploadError}</div>}
+        <div className="admin-field-hint">JPG, PNG or WebP — max 10MB each. Photos appear in destination cards on the site.</div>
       </div>
 
       <div className="admin-form-actions">
@@ -1205,7 +1264,7 @@ function AccountPage({ user, onUserUpdate, savedDestinations, city, onBack, onSe
                 return (
                   <div className="account-trip-card" key={dest.id} onClick={()=>onSelectDest(dest)}>
                     <div className="account-trip-photo">
-                      <PhotoSlideshow name={dest.name} height="90px" isDetail={true} />
+                      <PhotoSlideshow photos={dest.photos || []} height="90px" isDetail={true} />
                     </div>
                     <div className="account-trip-info">
                       <div className="account-trip-name">{dest.name}</div>
@@ -1483,7 +1542,7 @@ function App() {
                     return (
                       <div className="dest-card" key={dest.id} onClick={()=>setSelected(dest)}>
                         <div className="card-photo">
-                          <PhotoSlideshow name={dest.name} height="210px" isDetail={false} />
+                          <PhotoSlideshow photos={dest.photos || []} height="210px" isDetail={false} />
                           <div className="card-photo-overlay" />
                           <div className="card-dist-pill">🕐 {hr}h · {km}km</div>
                           <button className={"card-heart"+(isSaved?" saved":"")} onClick={(e)=>toggleWishlist(dest.id,e)}>

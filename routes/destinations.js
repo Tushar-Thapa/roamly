@@ -19,6 +19,7 @@ function parse(row) {
     transport:  JSON.parse(row.transport  || '[]'),
     itinerary:  JSON.parse(row.itinerary  || '[]'),
     pack:       JSON.parse(row.pack       || '[]'),
+    photos:     JSON.parse(row.photos     || '[]'),
     budget: { travel: row.budget_travel, stay: row.budget_stay, food: row.budget_food },
     distances: {
       chandigarh: { km: row.dist_chandigarh, hr: row.hr_chandigarh },
@@ -46,7 +47,6 @@ router.get('/:id', async (req, res) => {
     if (!row) return res.status(404).json({ error: 'Destination not found' });
     res.json(parse(row));
   } catch (err) {
-    console.error('Get destination error:', err);
     res.status(500).json({ error: 'Something went wrong' });
   }
 });
@@ -54,22 +54,27 @@ router.get('/:id', async (req, res) => {
 // POST /api/destinations (admin only)
 router.post('/', requireAuth, requireAdmin, async (req, res) => {
   try {
-    const { name, region, budget_travel=0, budget_stay=0, budget_food=0,
+    const {
+      name, region, budget_travel=0, budget_stay=0, budget_food=0,
       durations=[], tags=[], highlights=[], transport=[], itinerary=[],
-      best_time='', pack=[], dist_chandigarh=0, hr_chandigarh=0,
-      dist_amritsar=0, hr_amritsar=0, dist_delhi=0, hr_delhi=0, published=1 } = req.body;
+      best_time='', pack=[], photos=[],
+      dist_chandigarh=0, hr_chandigarh=0,
+      dist_amritsar=0,   hr_amritsar=0,
+      dist_delhi=0,      hr_delhi=0, published=1
+    } = req.body;
 
     if (!name || !region) return res.status(400).json({ error: 'Name and region are required' });
 
     const inserted = await get(`INSERT INTO destinations (
       name,region,budget_travel,budget_stay,budget_food,
-      durations,tags,highlights,transport,itinerary,best_time,pack,
+      durations,tags,highlights,transport,itinerary,best_time,pack,photos,
       dist_chandigarh,hr_chandigarh,dist_amritsar,hr_amritsar,dist_delhi,hr_delhi,published
-    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)
     RETURNING id`,
     [name,region,budget_travel,budget_stay,budget_food,
       JSON.stringify(durations),JSON.stringify(tags),JSON.stringify(highlights),
       JSON.stringify(transport),JSON.stringify(itinerary),best_time,JSON.stringify(pack),
+      JSON.stringify(photos),
       dist_chandigarh,hr_chandigarh,dist_amritsar,hr_amritsar,dist_delhi,hr_delhi,published]);
 
     const row = await get('SELECT * FROM destinations WHERE id = $1', [inserted.id]);
@@ -90,13 +95,19 @@ router.put('/:id', requireAuth, requireAdmin, async (req, res) => {
 
     await run(`UPDATE destinations SET
       name=$1,region=$2,budget_travel=$3,budget_stay=$4,budget_food=$5,
-      durations=$6,tags=$7,highlights=$8,transport=$9,itinerary=$10,best_time=$11,pack=$12,
-      dist_chandigarh=$13,hr_chandigarh=$14,dist_amritsar=$15,hr_amritsar=$16,dist_delhi=$17,hr_delhi=$18,published=$19
-      WHERE id=$20`,
+      durations=$6,tags=$7,highlights=$8,transport=$9,itinerary=$10,
+      best_time=$11,pack=$12,photos=$13,
+      dist_chandigarh=$14,hr_chandigarh=$15,
+      dist_amritsar=$16,hr_amritsar=$17,
+      dist_delhi=$18,hr_delhi=$19,published=$20
+      WHERE id=$21`,
     [f.name,f.region,f.budget_travel,f.budget_stay,f.budget_food,
       toStr(f.durations),toStr(f.tags),toStr(f.highlights),
       toStr(f.transport),toStr(f.itinerary),f.best_time,toStr(f.pack),
-      f.dist_chandigarh,f.hr_chandigarh,f.dist_amritsar,f.hr_amritsar,f.dist_delhi,f.hr_delhi,f.published,
+      toStr(f.photos),
+      f.dist_chandigarh,f.hr_chandigarh,
+      f.dist_amritsar,f.hr_amritsar,
+      f.dist_delhi,f.hr_delhi,f.published,
       req.params.id]);
 
     const row = await get('SELECT * FROM destinations WHERE id = $1', [req.params.id]);
@@ -115,7 +126,6 @@ router.delete('/:id', requireAuth, requireAdmin, async (req, res) => {
     await run('DELETE FROM destinations WHERE id = $1', [req.params.id]);
     res.json({ success: true });
   } catch (err) {
-    console.error('Delete destination error:', err);
     res.status(500).json({ error: 'Something went wrong deleting the destination' });
   }
 });
