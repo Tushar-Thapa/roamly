@@ -30,10 +30,7 @@ router.post('/', requireAuth, upload.single('image'), async (req, res) => {
       const stream = cloudinary.uploader.upload_stream(
         {
           folder: 'roamly',
-          transformation: [
-            { width: 900, height: 600, crop: 'fill', gravity: 'auto' },
-            { quality: 'auto', fetch_format: 'auto' }
-          ]
+          resource_type: 'image',
         },
         (error, result) => { if (error) reject(error); else resolve(result); }
       );
@@ -42,7 +39,7 @@ router.post('/', requireAuth, upload.single('image'), async (req, res) => {
 
     res.json({ url: result.secure_url, public_id: result.public_id });
   } catch (err) {
-    console.error('Upload error:', err);
+    console.error('Upload error:', err.message);
     res.status(500).json({ error: err.message || 'Upload failed' });
   }
 });
