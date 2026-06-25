@@ -172,8 +172,10 @@
 
     /* Results */
     .results-wrap { padding: 0 16px; margin-bottom: 60px; }
-    .results-bar { flex-direction: column; align-items: flex-start; gap: 6px; margin-bottom: 16px; }
+    .results-bar { flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
     .results-title { font-size: 22px; }
+    .sort-row { gap: 5px; }
+    .sort-btn { font-size: 11px; padding: 5px 10px; }
     .card-grid { grid-template-columns: 1fr; gap: 16px; }
 
     /* Cards */
@@ -265,10 +267,40 @@
 
   /* RESULTS */
   .results-wrap { max-width: 1100px; margin: 0 auto 80px; padding: 0 32px; }
+  /* SORT BAR */
   .results-bar {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 28px; padding-bottom: 16px; border-bottom: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--line);
+    flex-wrap: wrap; gap: 12px;
   }
+  .sort-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .sort-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-right: 2px; }
+  .sort-btn {
+    padding: 6px 12px; border: 1.5px solid var(--line); border-radius: 999px;
+    background: var(--paper); font-size: 12px; font-weight: 600;
+    color: var(--ink); cursor: pointer; font-family: inherit; transition: all 0.15s;
+  }
+  .sort-btn:hover { border-color: var(--ink); }
+  .sort-btn.active { background: var(--ink); border-color: var(--ink); color: white; }
+
+  /* ACTIVE FILTER PILLS */
+  .active-filters {
+    display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .active-filters-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .active-filter-pill {
+    padding: 5px 11px; border: 1.5px solid var(--orange); border-radius: 999px;
+    background: rgba(224,92,42,0.08); font-size: 12px; font-weight: 600;
+    color: var(--orange); cursor: pointer; font-family: inherit; transition: all 0.15s;
+  }
+  .active-filter-pill:hover { background: var(--orange); color: white; }
+  .active-filter-clear {
+    padding: 5px 11px; border: 1.5px solid var(--line); border-radius: 999px;
+    background: transparent; font-size: 12px; font-weight: 600;
+    color: var(--muted); cursor: pointer; font-family: inherit; transition: all 0.15s;
+  }
+  .active-filter-clear:hover { border-color: var(--ink); color: var(--ink); }
   .results-title { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
   .results-count { font-size: 13px; font-weight: 600; color: var(--muted); background: var(--sand); padding: 5px 12px; border-radius: 999px; }
   .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
@@ -1487,6 +1519,7 @@ function App() {
   const [showWishlistOnly, setShowWishlistOnly] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
   const [showAccount, setShowAccount] = useState(false);
+  const [sortBy, setSortBy] = useState("best"); // best | cheapest | closest | az
 
   // Load destinations from backend on first render
   useEffect(() => {
@@ -1738,9 +1771,73 @@ function App() {
           {hasSearched && (
             <div className="results-wrap">
               <div className="results-bar">
-                <h2 className="results-title">{showWishlistOnly ? "Your saved escapes" : `Escapes from ${city}`}</h2>
-                <span className="results-count">{results.length} found</span>
+                <div>
+                  <h2 className="results-title">{showWishlistOnly ? "Your saved escapes" : `Escapes from ${city}`}</h2>
+                  <span className="results-count">{results.length} found</span>
+                </div>
+                {!showWishlistOnly && results.length > 0 && (
+                  <div className="sort-row">
+                    <span className="sort-label">Sort:</span>
+                    {[
+                      { id: "best",     label: "Best match" },
+                      { id: "cheapest", label: "Cheapest" },
+                      { id: "closest",  label: "Closest" },
+                      { id: "az",       label: "A–Z" },
+                    ].map(opt => (
+                      <button
+                        key={opt.id}
+                        className={"sort-btn" + (sortBy === opt.id ? " active" : "")}
+                        onClick={() => setSortBy(opt.id)}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
+
+              {!showWishlistOnly && interests.length > 0 && (
+                <div className="active-filters">
+                  <span className="active-filters-label">Filters:</span>
+                  {interests.map(tag => (
+                    <button
+                      key={tag}
+                      className="active-filter-pill"
+                      onClick={() => {
+                        const newInterests = interests.filter(t => t !== tag);
+                        setInterests(newInterests);
+                        const matches = allDestinations.filter(dest => {
+                          const total = getTotalBudget(dest);
+                          const withinBudget = total <= Number(budget);
+                          const matchesDuration = dest.durations.includes(duration);
+                          const matchesInterest = newInterests.length === 0 || newInterests.some(t => dest.tags.includes(t));
+                          const notSelf = !(dest.name === "Amritsar" && city === "Amritsar");
+                          return withinBudget && matchesDuration && matchesInterest && notSelf;
+                        });
+                        setResults(matches);
+                      }}
+                    >
+                      {tag} ✕
+                    </button>
+                  ))}
+                  {interests.length > 1 && (
+                    <button
+                      className="active-filter-clear"
+                      onClick={() => {
+                        setInterests([]);
+                        const matches = allDestinations.filter(dest => {
+                          const total = getTotalBudget(dest);
+                          const notSelf = !(dest.name === "Amritsar" && city === "Amritsar");
+                          return total <= Number(budget) && dest.durations.includes(duration) && notSelf;
+                        });
+                        setResults(matches);
+                      }}
+                    >
+                      Clear all
+                    </button>
+                  )}
+                </div>
+              )}
               {results.length===0 ? (
                 <div className="empty">
                   <span className="empty-icon">{showWishlistOnly ? "♡" : "🧭"}</span>
@@ -1749,7 +1846,12 @@ function App() {
                 </div>
               ) : (
                 <div className="card-grid">
-                  {results.map(dest=>{
+                  {[...results].sort((a, b) => {
+                    if (sortBy === "cheapest") return getTotalBudget(a) - getTotalBudget(b);
+                    if (sortBy === "closest") return (getDist(a, city)[0] || 999) - (getDist(b, city)[0] || 999);
+                    if (sortBy === "az") return a.name.localeCompare(b.name);
+                    return 0; // "best" keeps original search ranking
+                  }).map(dest=>{
                     const [km,hr]=getDist(dest,city);
                     const total=getTotalBudget(dest);
                     const isSaved = wishlistIds.includes(dest.id);
