@@ -106,6 +106,130 @@
     .hero, .form-wrap { padding-left: 20px; padding-right: 20px; }
   }
 
+  /* ── COMPREHENSIVE MOBILE STYLES (≤480px) ── */
+  @media (max-width: 480px) {
+
+    /* Header — stack logo and actions, hide tagline */
+    .site-header { padding: 0 16px; }
+    .header-inner {
+      height: auto; padding: 12px 0;
+      flex-wrap: wrap; gap: 10px;
+    }
+    .header-tag { display: none; }
+    .logo-text { font-size: 20px; }
+    .auth-nav-btn { padding: 7px 12px; font-size: 12px; }
+    .wishlist-nav-btn { padding: 7px 10px; font-size: 12px; }
+    .user-chip { font-size: 12px; gap: 8px; }
+
+    /* Hero */
+    .hero { padding: 28px 20px 16px; }
+    .hero h1 { font-size: 32px; }
+    .hero-sub { font-size: 14px; }
+
+    /* Form */
+    .form-wrap { padding: 0 16px; margin-bottom: 40px; }
+    .form-card { padding: 20px 16px 24px; border-radius: 14px; }
+    .form-grid { grid-template-columns: 1fr; margin-bottom: 16px; }
+    .form-section { padding: 14px 16px; }
+    .budget-input { font-size: 20px; }
+    .dur-btn { font-size: 11px; padding: 8px 4px; }
+    .int-btn { font-size: 12px; padding: 6px 11px; }
+    .interests-row { gap: 6px; margin-bottom: 16px; }
+    .search-btn { font-size: 15px; padding: 14px; }
+
+    /* Results */
+    .results-wrap { padding: 0 16px; margin-bottom: 60px; }
+    .results-bar { flex-direction: column; align-items: flex-start; gap: 6px; margin-bottom: 16px; }
+    .results-title { font-size: 22px; }
+    .card-grid { grid-template-columns: 1fr; gap: 16px; }
+
+    /* Cards */
+    .card-photo { height: 190px; }
+    .card-name-overlay { font-size: 20px; bottom: 10px; left: 12px; right: 12px; }
+    .card-dist-pill { font-size: 11px; padding: 4px 9px; top: 10px; left: 10px; }
+    .card-region-pill { font-size: 10px; padding: 4px 8px; top: 10px; right: 40px; }
+    .card-heart { top: 10px; right: 10px; width: 28px; height: 28px; font-size: 14px; }
+    .card-body { padding: 14px 14px 16px; gap: 8px; }
+    .card-budget-strip { padding: 8px 10px; }
+    .budget-item-label { font-size: 9px; }
+    .budget-item-val { font-size: 12px; }
+    .card-highlights li { font-size: 12px; }
+    .card-tag { font-size: 10px; }
+    .card-footer { padding-top: 10px; }
+    .card-total { font-size: 12px; }
+    .card-total strong { font-size: 14px; }
+
+    /* Detail page */
+    .detail-wrap { padding: 0 16px; margin-bottom: 60px; }
+    .detail-photo { height: 240px; border-radius: 14px; }
+    .detail-photo-text { bottom: 16px; left: 16px; right: 16px; }
+    .detail-photo-text h1 { font-size: 24px; }
+    .detail-chips {
+      grid-template-columns: 1fr 1fr;
+      gap: 8px; margin-bottom: 20px;
+    }
+    .chip { padding: 12px 12px; border-radius: 10px; }
+    .chip-value { font-size: 16px; }
+    .detail-section { margin-bottom: 22px; }
+    .highlight-list li { font-size: 13px; padding: 10px 12px 10px 32px; }
+    .itin-item { flex-direction: column; gap: 8px; padding: 12px 14px; }
+    .itin-badge { align-self: flex-start; }
+    .budget-breakdown { grid-template-columns: 1fr; gap: 8px; }
+    .bb-card { padding: 14px; }
+    .bb-amount { font-size: 18px; }
+    .transport-row { padding: 12px 14px; gap: 10px; }
+    .transport-mode { font-size: 13px; }
+    .transport-detail { font-size: 12px; }
+    .transport-cost { font-size: 13px; }
+    .pack-row { gap: 6px; }
+    .pack-chip { font-size: 12px; padding: 6px 10px; }
+    .maps-link { padding: 12px 18px; font-size: 13px; }
+
+    /* Admin panel */
+    .admin-wrap { padding: 0 16px; }
+    .admin-header { padding: 20px 0 16px; flex-direction: column; align-items: flex-start; gap: 12px; }
+    .admin-title { font-size: 24px; }
+    .admin-row { flex-direction: column; align-items: flex-start; gap: 8px; padding: 12px 14px; }
+    .admin-row-region { width: auto; }
+    .admin-row-budget { width: auto; }
+    .admin-form-card { padding: 20px 16px; }
+    .admin-form-grid { grid-template-columns: 1fr; }
+    .admin-duration-row { gap: 6px; }
+    .admin-duration-btn { padding: 7px 12px; font-size: 12px; }
+
+    /* Account page */
+    .account-wrap { padding: 0 16px; }
+    .account-title { font-size: 26px; margin-bottom: 20px; }
+    .account-grid { grid-template-columns: 1fr; gap: 16px; }
+    .account-card { padding: 18px 16px; }
+    .account-trip-card { padding: 8px; gap: 10px; }
+    .account-trip-photo { width: 76px; height: 76px; }
+    .account-trip-name { font-size: 14px; }
+
+    /* Auth modal */
+    .modal-card { padding: 28px 20px; border-radius: 16px; }
+    .modal-title { font-size: 22px; }
+
+    /* Back button */
+    .back-btn { margin: 20px 0 16px; padding: 8px 14px; font-size: 12px; }
+
+    /* Footer */
+    footer { padding: 24px 16px; font-size: 11px; }
+  }
+
+  /* ── TABLET (481px - 768px) ── */
+  @media (min-width: 481px) and (max-width: 768px) {
+    .site-header { padding: 0 20px; }
+    .header-tag { display: none; }
+    .hero { padding: 40px 24px 20px; }
+    .results-wrap, .detail-wrap, .admin-wrap, .account-wrap { padding: 0 20px; }
+    .card-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .detail-chips { grid-template-columns: 1fr 1fr; }
+    .budget-breakdown { grid-template-columns: 1fr; }
+    .admin-form-grid { grid-template-columns: 1fr; }
+    .account-grid { grid-template-columns: 1fr; }
+  }
+
   /* RESULTS */
   .results-wrap { max-width: 1100px; margin: 0 auto 80px; padding: 0 32px; }
   .results-bar {
@@ -1423,12 +1547,12 @@ function App() {
             <div className="logo-mark">R</div>
             <span className="logo-text">Roamly</span>
           </div>
-          <div style={{display:"flex",alignItems:"center",gap:14}}>
+          <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap",justifyContent:"flex-end"}}>
             {user && user.role === "admin" && (
               <button className="wishlist-nav-btn" onClick={openAdmin}>⚙ Manage</button>
             )}
             {user && (
-              <button className="wishlist-nav-btn" onClick={viewWishlist}>♡ Saved ({wishlistIds.length})</button>
+              <button className="wishlist-nav-btn" onClick={viewWishlist}>♡ {wishlistIds.length}</button>
             )}
             {user ? (
               <div className="user-chip">
