@@ -106,7 +106,40 @@
     .hero, .form-wrap { padding-left: 20px; padding-right: 20px; }
   }
 
-  /* ── COMPREHENSIVE MOBILE STYLES (≤480px) ── */
+  /* ── SKELETON LOADING ── */
+  @keyframes skeleton-shimmer {
+    0% { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+  }
+  .skeleton {
+    background: linear-gradient(90deg, #ede8e0 0%, #f5f1ea 50%, #ede8e0 100%);
+    background-size: 400px 100%;
+    animation: skeleton-shimmer 1.4s ease infinite;
+    border-radius: 6px;
+  }
+  .skeleton-card {
+    background: var(--white); border: 1px solid var(--line);
+    border-radius: var(--r); overflow: hidden;
+  }
+  .skeleton-photo { height: 210px; width: 100%; }
+  .skeleton-photo.skeleton { border-radius: 0; }
+  .skeleton-body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 10px; }
+  .skeleton-line { height: 12px; width: 100%; }
+  .skeleton-line.short { width: 60%; }
+  .skeleton-line.medium { width: 80%; }
+  .skeleton-strip {
+    display: flex; gap: 0;
+    border: 1px solid var(--line); border-radius: 8px; overflow: hidden; padding: 10px 0;
+  }
+  .skeleton-strip-item { flex: 1; height: 28px; margin: 0 12px; }
+  .skeleton-tags { display: flex; gap: 6px; }
+  .skeleton-tag { height: 20px; width: 55px; border-radius: 4px; }
+  .skeleton-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 10px; border-top: 1px solid var(--line);
+  }
+  .skeleton-footer-left { height: 14px; width: 120px; }
+  .skeleton-footer-right { height: 14px; width: 70px; }
   @media (max-width: 480px) {
 
     /* Header — stack logo and actions, hide tagline */
@@ -1408,6 +1441,33 @@ function AccountPage({ user, onUserUpdate, savedDestinations, city, onBack, onSe
 }
 
 
+// ── SKELETON CARD ─────────────────────────────────────────────────────────────
+function SkeletonCard() {
+  return (
+    <div className="skeleton-card">
+      <div className="skeleton-photo skeleton" />
+      <div className="skeleton-body">
+        <div className="skeleton-strip">
+          <div className="skeleton-strip-item skeleton" />
+          <div className="skeleton-strip-item skeleton" />
+          <div className="skeleton-strip-item skeleton" />
+        </div>
+        <div className="skeleton-line skeleton medium" />
+        <div className="skeleton-line skeleton short" />
+        <div className="skeleton-tags">
+          <div className="skeleton-tag skeleton" />
+          <div className="skeleton-tag skeleton" />
+          <div className="skeleton-tag skeleton" />
+        </div>
+        <div className="skeleton-footer">
+          <div className="skeleton-footer-left skeleton" />
+          <div className="skeleton-footer-right skeleton" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [city, setCity] = useState("Chandigarh");
   const [budget, setBudget] = useState(2000);
@@ -1522,10 +1582,40 @@ function App() {
 
   if (loadingDestinations) {
     return (
-      <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:12}}>
-        <div style={{fontSize:32}}>🧭</div>
-        <div style={{color:"var(--muted)",fontSize:14}}>Loading destinations...</div>
-      </div>
+      <React.Fragment>
+        <header className="site-header">
+          <div className="header-inner">
+            <div className="logo">
+              <div className="logo-mark">R</div>
+              <span className="logo-text">Roamly</span>
+            </div>
+          </div>
+        </header>
+        <section className="hero">
+          <div className="hero-eyebrow">Discover North India</div>
+          <h1>Your next <em>escape</em><br />starts here</h1>
+          <p className="hero-sub">Enter your city, budget, and trip length. We'll find weekend getaways that actually fit.</p>
+        </section>
+        <div className="form-wrap">
+          <div className="form-card" style={{opacity:0.5,pointerEvents:"none"}}>
+            <div className="form-grid">
+              <div className="form-section"><span className="form-section-label">Starting from</span><div style={{height:36,borderRadius:8}} className="skeleton" /></div>
+              <div className="form-section"><span className="form-section-label">Budget / person</span><div style={{height:36,borderRadius:8}} className="skeleton" /></div>
+              <div className="form-section"><span className="form-section-label">Trip length</span><div style={{height:36,borderRadius:8}} className="skeleton" /></div>
+            </div>
+            <div style={{height:42,borderRadius:12,marginTop:20}} className="skeleton" />
+          </div>
+        </div>
+        <div className="results-wrap">
+          <div className="results-bar">
+            <div style={{height:28,width:200,borderRadius:6}} className="skeleton" />
+            <div style={{height:24,width:70,borderRadius:999}} className="skeleton" />
+          </div>
+          <div className="card-grid">
+            {[1,2,3,4,5,6].map(i => <SkeletonCard key={i} />)}
+          </div>
+        </div>
+      </React.Fragment>
     );
   }
 
