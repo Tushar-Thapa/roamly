@@ -316,8 +316,8 @@
   .dest-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(26,22,18,0.14); }
   /* SLIDESHOW */
   .card-photo { position: relative; height: 210px; overflow: hidden; background: var(--sand); }
-  .slide-track { display: flex; height: 100%; transition: transform 0.45s cubic-bezier(0.4,0,0.2,1); }
-  .slide-img { min-width: 100%; height: 100%; object-fit: cover; display: block; flex-shrink: 0; }
+  .slide-track { display: flex; height: 100%; transition: transform 0.45s cubic-bezier(0.4,0,0.2,1); will-change: transform; }
+  .slide-img { height: 100%; object-fit: cover; display: block; flex-shrink: 0; }
   .card-photo-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(26,22,18,0.75) 0%, transparent 55%); pointer-events: none; }
   .slide-arrow {
     position: absolute; top: 50%; transform: translateY(-50%);
@@ -657,7 +657,39 @@
     font-size: 13px; font-family: inherit; background: var(--paper); color: var(--ink);
   }
   .admin-field textarea { resize: vertical; min-height: 60px; }
-  .admin-field-hint { font-size: 11px; color: var(--muted); }
+  /* ADMIN REPEATER ROWS (transport, itinerary) */
+  .admin-section-title {
+    font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700;
+    color: var(--ink); margin: 24px 0 12px; padding: 10px 14px;
+    background: var(--sand); border-radius: 8px;
+    border-left: 3px solid var(--orange);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .admin-repeater-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
+  .admin-repeater-select {
+    padding: 8px 10px; border: 1.5px solid var(--line); border-radius: 8px;
+    background: var(--paper); font-size: 16px; cursor: pointer;
+    font-family: inherit; flex-shrink: 0;
+  }
+  .admin-repeater-input {
+    flex: 1; min-width: 120px; padding: 8px 10px;
+    border: 1.5px solid var(--line); border-radius: 8px;
+    font-size: 13px; font-family: inherit; background: var(--paper); color: var(--ink);
+  }
+  .admin-repeater-input.short { flex: 0 0 120px; min-width: 80px; }
+  .admin-repeater-input:focus { outline: none; border-color: var(--orange); }
+  .admin-repeater-remove {
+    background: none; border: 1.5px solid var(--line); border-radius: 6px;
+    padding: 6px 10px; cursor: pointer; color: var(--muted); font-size: 12px;
+    flex-shrink: 0; transition: all 0.15s;
+  }
+  .admin-repeater-remove:hover { border-color: #b3261e; color: #b3261e; }
+  .admin-repeater-add {
+    background: none; border: 1.5px dashed var(--line); border-radius: 8px;
+    padding: 8px 16px; cursor: pointer; color: var(--muted); font-size: 13px;
+    font-family: inherit; font-weight: 600; transition: all 0.15s; width: 100%;
+  }
+  .admin-repeater-add:hover { border-color: var(--orange); color: var(--orange); }
   .admin-photo-section { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--line); }
   .admin-field-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
   .admin-photo-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-start; }
@@ -810,16 +842,34 @@ function getTotalBudget(dest) {
   return (dest.budget.travel + dest.budget.stay + dest.budget.food);
 }
 
+function getBudgetRange(dest) {
+  const min = getTotalBudget(dest);
+  const maxTravel = dest.budget.travel_max || dest.budget.travel;
+  const maxStay   = dest.budget.stay_max   || dest.budget.stay;
+  const maxFood   = dest.budget.food_max   || dest.budget.food;
+  const max = maxTravel + maxStay + maxFood;
+  if (max === min) return `₹${min.toLocaleString()}`;
+  return `₹${min.toLocaleString()}–${max.toLocaleString()}`;
+}
+
+function getBudgetItemRange(min, max) {
+  if (!max || max === min) return `₹${min}`;
+  return `₹${min}–${max}`;
+}
+
 // ── SLIDESHOW COMPONENT ───────────────────────────────────────────────────────
 // photos: array of Cloudinary URLs from the database (dest.photos)
 function PhotoSlideshow({ photos: photoProp, height, isDetail }) {
-  const allPhotos = photoProp || [];
+  const allPhotos = (photoProp || []).filter(Boolean);
   const [current, setCurrent] = useState(0);
-  const [loaded, setLoaded] = useState({});
-  const [errored, setErrored] = useState({});
+  const [loadedSet, setLoadedSet] = useState({});
+  const [erroredSet, setErroredSet] = useState({});
 
-  // Filter out errored photos
-  const photos = allPhotos.filter((_,i) => !errored[i]);
+  // Only show photos that haven't errored
+  const photos = allPhotos.filter((_, i) => !erroredSet[i]);
+
+  // Clamp current to valid range whenever photos changes
+  const safeCurrent = Math.min(current, Math.max(0, photos.length - 1));
 
   const prev = (e) => {
     e.stopPropagation();
@@ -834,15 +884,15 @@ function PhotoSlideshow({ photos: photoProp, height, isDetail }) {
     setCurrent(i);
   };
 
-  // Auto-advance every 3.5s (only on cards, not detail page)
+  // Auto-advance (cards only, not detail page)
   React.useEffect(() => {
     if (isDetail || photos.length <= 1) return;
     const timer = setInterval(() => setCurrent(c => (c + 1) % photos.length), 3500);
     return () => clearInterval(timer);
   }, [photos.length, isDetail]);
 
-  // If no photos at all, show emoji fallback
-  if (allPhotos.length === 0 || photos.length === 0) {
+  // No photos — show fallback
+  if (photos.length === 0) {
     return (
       <div style={{width:"100%",height,display:"flex",alignItems:"center",justifyContent:"center",background:"#e8dcc8",fontSize:44}}>
         🏔️
@@ -852,36 +902,52 @@ function PhotoSlideshow({ photos: photoProp, height, isDetail }) {
 
   return (
     <div style={{position:"relative",height,overflow:"hidden",background:"#e8dcc8"}}>
-      {/* Slide track */}
-      <div className="slide-track" style={{transform:`translateX(-${current * 100}%)`}}>
-        {allPhotos.map((src, i) => (
-          !errored[i] && (
-            <React.Fragment key={i}>
-              {!loaded[i] && (
-                <div className="photo-skeleton" style={{position:"absolute",left:`${i*100}%`,top:0,width:"100%",height:"100%"}} />
-              )}
-              <img
-                className="slide-img"
-                src={src}
-                alt={`${name} ${i+1}`}
-                style={{opacity: loaded[i] ? 1 : 0, transition:"opacity 0.3s"}}
-                onLoad={() => setLoaded(p => ({...p,[i]:true}))}
-                onError={() => setErrored(p => ({...p,[i]:true}))}
-              />
-            </React.Fragment>
-          )
+      {/* Skeleton while first photo loads */}
+      {!loadedSet[photos[0]] && (
+        <div className="photo-skeleton" style={{position:"absolute",inset:0,zIndex:1}} />
+      )}
+
+      {/* Slide track — translate by safeCurrent, each img is exactly 100% wide */}
+      <div
+        className="slide-track"
+        style={{
+          transform: `translateX(-${safeCurrent * 100}%)`,
+          width: `${photos.length * 100}%`,
+        }}
+      >
+        {photos.map((src, i) => (
+          <img
+            key={src}
+            className="slide-img"
+            src={src}
+            alt={`Photo ${i+1}`}
+            style={{
+              width: `${100 / photos.length}%`,
+              height: "100%",
+              objectFit: "cover",
+              display: "block",
+              flexShrink: 0,
+              opacity: loadedSet[src] ? 1 : 0,
+              transition: "opacity 0.3s",
+            }}
+            onLoad={() => setLoadedSet(p => ({...p, [src]: true}))}
+            onError={() => {
+              // Find original index to mark errored
+              const origIdx = allPhotos.indexOf(src);
+              setErroredSet(p => ({...p, [origIdx]: true}));
+              // Clamp current if needed
+              setCurrent(c => Math.min(c, Math.max(0, photos.length - 2)));
+            }}
+          />
         ))}
       </div>
 
-      {/* Gradient overlay */}
       <div className="card-photo-overlay" />
 
-      {/* Photo count badge */}
       {photos.length > 1 && (
-        <div className="slide-count">{current+1} / {photos.length}</div>
+        <div className="slide-count">{safeCurrent+1} / {photos.length}</div>
       )}
 
-      {/* Arrow buttons — only show if more than 1 photo */}
       {photos.length > 1 && (
         <>
           <button className="slide-arrow slide-arrow-left" onClick={prev}>‹</button>
@@ -889,11 +955,10 @@ function PhotoSlideshow({ photos: photoProp, height, isDetail }) {
         </>
       )}
 
-      {/* Dot indicators */}
       {photos.length > 1 && (
         <div className="slide-dots">
           {photos.map((_, i) => (
-            <button key={i} className={`slide-dot${current===i?" active":""}`} onClick={(e)=>goTo(i,e)} />
+            <button key={i} className={`slide-dot${safeCurrent===i?" active":""}`} onClick={(e)=>goTo(i,e)} />
           ))}
         </div>
       )}
@@ -925,8 +990,8 @@ function DetailPage({ dest, city, onBack }) {
           <div className="chip-sub">~{hr} hrs by road</div>
         </div>
         <div className="chip">
-          <div className="chip-label">Total budget</div>
-          <div className="chip-value">₹{total.toLocaleString()}</div>
+          <div className="chip-label">Budget (est.)</div>
+          <div className="chip-value" style={{fontSize:15}}>{getBudgetRange(dest)}</div>
           <div className="chip-sub">per person</div>
         </div>
         <div className="chip">
@@ -950,25 +1015,25 @@ function DetailPage({ dest, city, onBack }) {
           <div className="bb-card">
             <span className="bb-icon">🚌</span>
             <div className="bb-label">Travel</div>
-            <div className="bb-amount">₹{dest.budget.travel}</div>
+            <div className="bb-amount">{getBudgetItemRange(dest.budget.travel, dest.budget.travel_max)}</div>
             <div className="bb-note">transport to/from</div>
           </div>
           <div className="bb-card">
             <span className="bb-icon">🏨</span>
             <div className="bb-label">Stay</div>
-            <div className="bb-amount">₹{dest.budget.stay}</div>
+            <div className="bb-amount">{getBudgetItemRange(dest.budget.stay, dest.budget.stay_max)}</div>
             <div className="bb-note">budget guesthouse/night</div>
           </div>
           <div className="bb-card">
             <span className="bb-icon">🍽️</span>
             <div className="bb-label">Food</div>
-            <div className="bb-amount">₹{dest.budget.food}</div>
+            <div className="bb-amount">{getBudgetItemRange(dest.budget.food, dest.budget.food_max)}</div>
             <div className="bb-note">meals per day</div>
           </div>
         </div>
         <div className="bb-total">
           <span className="bb-total-label">Total estimated / person</span>
-          <span className="bb-total-amount">₹{total.toLocaleString()}</span>
+          <span className="bb-total-amount">{getBudgetRange(dest)}</span>
         </div>
       </div>
 
@@ -1125,6 +1190,8 @@ function DestinationForm({ initial, onSave, onCancel }) {
     packCsv: arrToCsv(initial.pack),
     durations: initial.durations && initial.durations.length ? initial.durations : [],
     photos: initial.photos || [],
+    transportItems: initial.transport && initial.transport.length ? initial.transport : [{ icon:"🚗", mode:"", detail:"", cost:"" }],
+    itineraryItems: initial.itinerary && initial.itinerary.length ? initial.itinerary : [{ day:"Day 1", plan:"" }],
   }));
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -1195,8 +1262,8 @@ function DestinationForm({ initial, onSave, onCancel }) {
       pack: csvToArr(form.packCsv),
       durations: form.durations,
       photos: form.photos,
-      transport: form.transport || [],
-      itinerary: form.itinerary || [],
+      transport: form.transportItems.filter(t => t.mode.trim()),
+      itinerary: form.itineraryItems.filter(t => t.plan.trim()),
       budget_travel: Number(form.budget_travel) || 0,
       budget_stay:   Number(form.budget_stay) || 0,
       budget_food:   Number(form.budget_food) || 0,
@@ -1218,9 +1285,12 @@ function DestinationForm({ initial, onSave, onCancel }) {
         <div className="admin-field"><label>Name</label><input {...field("name")} required /></div>
         <div className="admin-field"><label>Region</label><input {...field("region")} required /></div>
 
-        <div className="admin-field"><label>Travel budget (₹)</label><input type="number" {...field("budget_travel")} /></div>
-        <div className="admin-field"><label>Stay budget (₹)</label><input type="number" {...field("budget_stay")} /></div>
-        <div className="admin-field"><label>Food budget (₹)</label><input type="number" {...field("budget_food")} /></div>
+        <div className="admin-field"><label>Travel budget min (₹)</label><input type="number" {...field("budget_travel")} /></div>
+        <div className="admin-field"><label>Stay budget min (₹)</label><input type="number" {...field("budget_stay")} /></div>
+        <div className="admin-field"><label>Food budget min (₹)</label><input type="number" {...field("budget_food")} /></div>
+        <div className="admin-field"><label>Travel budget max (₹)</label><input type="number" {...field("budget_travel_max")} placeholder="Leave empty if same" /></div>
+        <div className="admin-field"><label>Stay budget max (₹)</label><input type="number" {...field("budget_stay_max")} placeholder="Leave empty if same" /></div>
+        <div className="admin-field"><label>Food budget max (₹)</label><input type="number" {...field("budget_food_max")} placeholder="Leave empty if same" /></div>
         <div className="admin-field">
           <label>Durations (select all that apply)</label>
           <div className="admin-duration-row">
@@ -1252,6 +1322,51 @@ function DestinationForm({ initial, onSave, onCancel }) {
         <div className="admin-field"><label>Distance from Delhi (km)</label><input type="number" {...field("dist_delhi")} /></div>
         <div className="admin-field"><label>Hours from Delhi</label><input type="number" step="0.5" {...field("hr_delhi")} /></div>
       </div>
+
+      <div className="admin-section-title">🚌 How to Get There <span style={{fontSize:11,fontWeight:500,color:"var(--muted)",fontFamily:"DM Sans, sans-serif"}}>— add bus, train, car options</span></div>
+      {form.transportItems.map((t, i) => (
+        <div key={i} className="admin-repeater-row">
+          <select
+            className="admin-repeater-select"
+            value={t.icon}
+            onChange={e => setForm(f => { const items=[...f.transportItems]; items[i]={...items[i],icon:e.target.value}; return {...f,transportItems:items}; })}
+          >
+            <option value="🚗">🚗 Car</option>
+            <option value="🚌">🚌 Bus</option>
+            <option value="🚂">🚂 Train</option>
+            <option value="✈️">✈️ Flight</option>
+            <option value="🛺">🛺 Auto</option>
+          </select>
+          <input className="admin-repeater-input" placeholder="Mode (e.g. Own Vehicle)" value={t.mode}
+            onChange={e => setForm(f => { const items=[...f.transportItems]; items[i]={...items[i],mode:e.target.value}; return {...f,transportItems:items}; })} />
+          <input className="admin-repeater-input" placeholder="Detail (e.g. 110 km from Chandigarh, ~3 hrs)" value={t.detail}
+            onChange={e => setForm(f => { const items=[...f.transportItems]; items[i]={...items[i],detail:e.target.value}; return {...f,transportItems:items}; })} />
+          <input className="admin-repeater-input short" placeholder="Cost (e.g. ₹450)" value={t.cost}
+            onChange={e => setForm(f => { const items=[...f.transportItems]; items[i]={...items[i],cost:e.target.value}; return {...f,transportItems:items}; })} />
+          <button type="button" className="admin-repeater-remove"
+            onClick={() => setForm(f => ({...f, transportItems: f.transportItems.filter((_,j)=>j!==i)}))}>✕</button>
+        </div>
+      ))}
+      <button type="button" className="admin-repeater-add"
+        onClick={() => setForm(f => ({...f, transportItems: [...f.transportItems, {icon:"🚗",mode:"",detail:"",cost:""}]}))}>
+        + Add transport option
+      </button>
+
+      <div className="admin-section-title" style={{marginTop:20}}>📅 Suggested Itinerary <span style={{fontSize:11,fontWeight:500,color:"var(--muted)",fontFamily:"DM Sans, sans-serif"}}>— add day-by-day plan</span></div>
+      {form.itineraryItems.map((item, i) => (
+        <div key={i} className="admin-repeater-row">
+          <input className="admin-repeater-input short" placeholder="Day label (e.g. Day 1)" value={item.day}
+            onChange={e => setForm(f => { const items=[...f.itineraryItems]; items[i]={...items[i],day:e.target.value}; return {...f,itineraryItems:items}; })} />
+          <input className="admin-repeater-input" placeholder="What to do (e.g. Drive to Shimla, check in, Mall Road evening)" value={item.plan}
+            onChange={e => setForm(f => { const items=[...f.itineraryItems]; items[i]={...items[i],plan:e.target.value}; return {...f,itineraryItems:items}; })} />
+          <button type="button" className="admin-repeater-remove"
+            onClick={() => setForm(f => ({...f, itineraryItems: f.itineraryItems.filter((_,j)=>j!==i)}))}>✕</button>
+        </div>
+      ))}
+      <button type="button" className="admin-repeater-add"
+        onClick={() => setForm(f => ({...f, itineraryItems: [...f.itineraryItems, {day:`Day ${f.itineraryItems.length+1}`,plan:""}]}))}>
+        + Add itinerary day
+      </button>
 
       <div className="admin-photo-section">
         <div className="admin-field-label">Photos (up to 3) — uploaded to Cloudinary</div>
@@ -1871,15 +1986,15 @@ function App() {
                           <div className="card-budget-strip">
                             <div className="budget-item">
                               <span className="budget-item-label">✈ Travel</span>
-                              <span className="budget-item-val">₹{dest.budget.travel}</span>
+                              <span className="budget-item-val">{getBudgetItemRange(dest.budget.travel, dest.budget.travel_max)}</span>
                             </div>
                             <div className="budget-item">
                               <span className="budget-item-label">🏨 Stay</span>
-                              <span className="budget-item-val">₹{dest.budget.stay}</span>
+                              <span className="budget-item-val">{getBudgetItemRange(dest.budget.stay, dest.budget.stay_max)}</span>
                             </div>
                             <div className="budget-item">
                               <span className="budget-item-label">🍽 Food</span>
-                              <span className="budget-item-val">₹{dest.budget.food}</span>
+                              <span className="budget-item-val">{getBudgetItemRange(dest.budget.food, dest.budget.food_max)}</span>
                             </div>
                           </div>
                           <div className="card-transport">
@@ -1894,7 +2009,7 @@ function App() {
                             {dest.tags.slice(0,4).map(t=><span className="card-tag" key={t}>{t}</span>)}
                           </div>
                           <div className="card-footer">
-                            <div className="card-total">Total <strong>₹{total.toLocaleString()}</strong>/person</div>
+                            <div className="card-total">Est. <strong>{getBudgetRange(dest)}</strong>/person</div>
                             <button className="card-view-btn" onClick={e=>{e.stopPropagation();setSelected(dest);}}>Details →</button>
                           </div>
                         </div>

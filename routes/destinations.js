@@ -20,7 +20,14 @@ function parse(row) {
     itinerary:  JSON.parse(row.itinerary  || '[]'),
     pack:       JSON.parse(row.pack       || '[]'),
     photos:     JSON.parse(row.photos     || '[]'),
-    budget: { travel: row.budget_travel, stay: row.budget_stay, food: row.budget_food },
+    budget: {
+      travel:     row.budget_travel,
+      stay:       row.budget_stay,
+      food:       row.budget_food,
+      travel_max: row.budget_travel_max || null,
+      stay_max:   row.budget_stay_max   || null,
+      food_max:   row.budget_food_max   || null,
+    },
     distances: {
       chandigarh: { km: row.dist_chandigarh, hr: row.hr_chandigarh },
       amritsar:   { km: row.dist_amritsar,   hr: row.hr_amritsar },
@@ -55,7 +62,9 @@ router.get('/:id', async (req, res) => {
 router.post('/', requireAuth, requireAdmin, async (req, res) => {
   try {
     const {
-      name, region, budget_travel=0, budget_stay=0, budget_food=0,
+      name, region,
+      budget_travel=0, budget_stay=0, budget_food=0,
+      budget_travel_max=null, budget_stay_max=null, budget_food_max=null,
       durations=[], tags=[], highlights=[], transport=[], itinerary=[],
       best_time='', pack=[], photos=[],
       dist_chandigarh=0, hr_chandigarh=0,
@@ -67,11 +76,13 @@ router.post('/', requireAuth, requireAdmin, async (req, res) => {
 
     const inserted = await get(`INSERT INTO destinations (
       name,region,budget_travel,budget_stay,budget_food,
+      budget_travel_max,budget_stay_max,budget_food_max,
       durations,tags,highlights,transport,itinerary,best_time,pack,photos,
       dist_chandigarh,hr_chandigarh,dist_amritsar,hr_amritsar,dist_delhi,hr_delhi,published
-    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23)
     RETURNING id`,
     [name,region,budget_travel,budget_stay,budget_food,
+      budget_travel_max,budget_stay_max,budget_food_max,
       JSON.stringify(durations),JSON.stringify(tags),JSON.stringify(highlights),
       JSON.stringify(transport),JSON.stringify(itinerary),best_time,JSON.stringify(pack),
       JSON.stringify(photos),
@@ -92,19 +103,23 @@ router.put('/:id', requireAuth, requireAdmin, async (req, res) => {
     if (!existing) return res.status(404).json({ error: 'Destination not found' });
     const f = { ...existing, ...req.body };
     const toStr = v => typeof v === 'string' ? v : JSON.stringify(v || []);
+    const toNum = v => v === null || v === undefined || v === '' ? null : Number(v);
 
     await run(`UPDATE destinations SET
-      name=$1,region=$2,budget_travel=$3,budget_stay=$4,budget_food=$5,
-      durations=$6,tags=$7,highlights=$8,transport=$9,itinerary=$10,
-      best_time=$11,pack=$12,photos=$13,
-      dist_chandigarh=$14,hr_chandigarh=$15,
-      dist_amritsar=$16,hr_amritsar=$17,
-      dist_delhi=$18,hr_delhi=$19,published=$20
-      WHERE id=$21`,
-    [f.name,f.region,f.budget_travel,f.budget_stay,f.budget_food,
+      name=$1,region=$2,
+      budget_travel=$3,budget_stay=$4,budget_food=$5,
+      budget_travel_max=$6,budget_stay_max=$7,budget_food_max=$8,
+      durations=$9,tags=$10,highlights=$11,transport=$12,itinerary=$13,
+      best_time=$14,pack=$15,photos=$16,
+      dist_chandigarh=$17,hr_chandigarh=$18,
+      dist_amritsar=$19,hr_amritsar=$20,
+      dist_delhi=$21,hr_delhi=$22,published=$23
+      WHERE id=$24`,
+    [f.name,f.region,
+      f.budget_travel,f.budget_stay,f.budget_food,
+      toNum(f.budget_travel_max),toNum(f.budget_stay_max),toNum(f.budget_food_max),
       toStr(f.durations),toStr(f.tags),toStr(f.highlights),
-      toStr(f.transport),toStr(f.itinerary),f.best_time,toStr(f.pack),
-      toStr(f.photos),
+      toStr(f.transport),toStr(f.itinerary),f.best_time,toStr(f.pack),toStr(f.photos),
       f.dist_chandigarh,f.hr_chandigarh,
       f.dist_amritsar,f.hr_amritsar,
       f.dist_delhi,f.hr_delhi,f.published,

@@ -96,7 +96,13 @@ async function lastInsertId(insertResult) {
 // ── Initialize DB: create tables + seed if empty ────────────────────────────
 async function initDb() {
   await pool.query(SQL_SCHEMA);
+
+  // Run safe migrations — IF NOT EXISTS means these only run once
   await pool.query("ALTER TABLE destinations ADD COLUMN IF NOT EXISTS photos TEXT NOT NULL DEFAULT '[]'");
+  await pool.query("ALTER TABLE destinations ADD COLUMN IF NOT EXISTS budget_travel_max INTEGER");
+  await pool.query("ALTER TABLE destinations ADD COLUMN IF NOT EXISTS budget_stay_max INTEGER");
+  await pool.query("ALTER TABLE destinations ADD COLUMN IF NOT EXISTS budget_food_max INTEGER");
+
   console.log('✅ Tables ready');
 
   const countResult = await pool.query('SELECT COUNT(*) as c FROM destinations');
